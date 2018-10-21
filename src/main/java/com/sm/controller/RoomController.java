@@ -38,15 +38,22 @@ public class RoomController {
 	
 	@RequestMapping(value = "/createroom/{name_home}", method = RequestMethod.POST, headers="Accept=application/json")
 	public ResponseEntity<HttpStatus> createRooms(@RequestBody Rooms room, @PathVariable("name_home") String name_home){
+		Boolean isexits = false;
 		HomeProject home = homeService.getHome(name_home);
 		if(home!=null) {
 			room.setHome(home);
-			Rooms roomCheck = roomService.getRoom(room.getNameRoom()/*add variable home*/);
-			if(roomCheck != null && roomCheck.getHome().getIdHome() == home.getIdHome()) {
-				return new ResponseEntity<>(HttpStatus.FOUND);
-			}else {
+			List<Rooms> listrooms = home.getRooms();
+			for(Rooms rooms : listrooms) {
+				if(rooms.getNameRoom().compareTo(room.getNameRoom())==0) {
+					isexits = true;
+					break;
+				}
+			}
+			if(!isexits) {
 				roomService.createRoom(room);
-		        return new ResponseEntity<>(HttpStatus.CREATED);
+				return new ResponseEntity<>(HttpStatus.CREATED);
+			}else {
+				return new ResponseEntity<>(HttpStatus.FOUND);
 			}
 		}else {
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);

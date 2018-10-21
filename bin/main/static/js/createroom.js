@@ -86,24 +86,27 @@
 	function createRoom(){
 		$('.btnOk').one('click', function(){
 			var roomname = $('.roomname').val();
-			getInfoCreateRoom(saveRoom(roomname,countroom));
+			getInfoCreateRoom(saveRoom(roomname,countroom), roomname);
 		})
 	}
 
 	function saveRoom(roomname, countroom){
   		//Begin create room
 	    $.ajax({
+	    	async : false,
 			method: "post",
 			data: JSON.stringify({ nameRoom:roomname }),
 			contentType: "application/json",
 			url: "http://localhost/smarthome/createroom/"+getHomeName
 		}).done(function(data, textStatus, xhr){
 			status_create = xhr.status;
+		}).fail(function(data, textStatus, xhr){
+				 status_create = data.status;
 		});
 		return status_create;
 	}
 
-	function getInfoCreateRoom(info){
+	function getInfoCreateRoom(info,roomname){
     	if(info == 201){
     		appendRoom(countroom,roomname);
     	}else if(info == 302){

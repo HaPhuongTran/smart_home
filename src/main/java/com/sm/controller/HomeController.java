@@ -1,6 +1,8 @@
 package com.sm.controller;
 
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -28,18 +30,21 @@ public class HomeController {
 	
 	@RequestMapping(value = "/createhome/{user_name}", method = RequestMethod.POST, headers="Accept=application/json")
 	public ResponseEntity<HttpStatus> createHome(@RequestBody HomeProject homeProject, @PathVariable("user_name") String user_name){
+		Boolean isexits = false;
 		Account account = accountService.getAccountByName(user_name);
-		if(account!=null) {
-			homeProject.setAccount(account);
-			HomeProject homeCheck = homeService.getHome(homeProject.getNameHome()/*add variable account*/);
-			if(homeCheck != null && homeCheck.getAccount().getId() == account.getId()) {
-				return new ResponseEntity<>(HttpStatus.FOUND);
-			}else {
-				homeService.createHome(homeProject);
-		        return new ResponseEntity<>(HttpStatus.CREATED);
+		homeProject.setAccount(account);
+		List<HomeProject> listhomes = account.getHome();
+		for(HomeProject home : listhomes) {
+			if(home.getNameHome().compareTo(homeProject.getNameHome())==0) {
+				isexits = true;
+				break;
 			}
+		}
+		if(!isexits) {
+			homeService.createHome(homeProject);
+			return new ResponseEntity<>(HttpStatus.CREATED);
 		}else {
-			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+			return new ResponseEntity<>(HttpStatus.FOUND);
 		}
 	}
 	
