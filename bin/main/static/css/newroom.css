@@ -1,0 +1,48 @@
+
+header{
+	height: 20% !important;
+}
+.navbar{
+	background-color: #00838f !important;
+}
+
+
+.top-nav-collapse {
+  background-color: #00838f !important;
+}
+
+.username{
+	color: white;
+}
+
+.wellcome{
+	padding: 15% 0 20% 0; 
+	text-align: center; 
+	font-size: 200%; 
+	color: gray;
+}
+
+.home{
+	
+    background-image: url('../img/sm_image/smarthome.jpg');
+}
+.room-contain{
+	padding-right: 5px;
+    padding-left: 5px;
+    padding-bottom: 30px;
+}
+
+.contain-info{
+	width: 90%; 
+	margin: auto;
+}
+
+.deleteroom{
+	position: absolute;
+    margin-top: 10px;
+    margin-left: 10px;
+}
+
+.close span{
+	color: white;
+}

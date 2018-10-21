@@ -1,0 +1,32 @@
+html,
+body,
+header,
+.view {
+  height: 100%;
+}
+
+@media (max-width: 740px) {
+  html,
+  body,
+  header,
+  .view {
+    height: 100vh;
+  }
+}
+
+.sm_mainpage{
+  background-image: url('../img/sm_image/smarthome.jpg');
+  background-repeat: no-repeat; 
+  background-size: cover;
+  background-position: center center;
+}
+
+.anncounce{
+  text-align: center;
+  color: red;
+  display: none;
+}
+
+.smarthome{
+  font-family: Satisfy;
+}
