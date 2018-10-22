@@ -27,4 +27,10 @@ public class DeviceController {
 		deviceService.save(devices);
 		return new ResponseEntity<>(HttpStatus.CREATED);
 	}
+	
+//	@RequestMapping(value = "/getdevice", method = RequestMethod.GET)
+//	public ResponseEntity<HttpStatus> getDevices( @RequestBody List<Device> devices){
+//		deviceService.getDevice(devices);
+//		return new ResponseEntity<>(HttpStatus.CREATED);
+//	}
 }

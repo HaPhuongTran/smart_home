@@ -25,7 +25,7 @@ public class Rooms{
 	@Column(name = "id", nullable = false)
 	private int id;
 	
-	@ManyToOne(cascade = CascadeType.ALL)
+	@ManyToOne
 	@JoinColumn(name = "home_id", referencedColumnName = "id")
 	private HomeProject home;
 	

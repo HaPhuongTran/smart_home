@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  <title>SmartHome</title>
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+  <!-- Bootstrap core CSS -->
+  <link href="css/bootstrap.min.css" rel="stylesheet">
+  <!-- Material Design Bootstrap -->
+  <link href="css/mdb.min.css" rel="stylesheet">
+  <!-- Your custom styles (optional) -->
+  <link href="css/style.css" rel="stylesheet">
+  <link href="css/common.css" rel="stylesheet">
+  <!-- Font -->
+  <link href="https://fonts.googleapis.com/css?family=Satisfy" rel="stylesheet">
+</head>
+
+<body>
+
+<header>
+  <div class="alert alert-warning alert-dismissible fade show" role="alert">
+      <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+        <span aria-hidden="true">&times;</span>
+      </button>
+      <strong></strong>
+  </div>
+  <div class="modal fade login-form" id="modalLoginForm" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-backdrop = "static">
+  </div>
+  <div class="view sm_mainpage">
+    <div class="mask rgba-gradient d-flex justify-content-center align-items-center">
+      <div class="container">
+        <div class="row mt-5">
+          <div class="col-md-6 mb-5 mt-md-0 mt-5 white-text text-center text-md-left">
+            <h1 class="h1-responsive font-weight-bold wow fadeInLeft" data-wow-delay="0.3s">Smart Home For Furture</h1>
+            <hr class="hr-light wow fadeInLeft" data-wow-delay="0.3s">
+            <a class="btn btn-outline-white wow fadeInLeft login" data-wow-delay="0.3s" data-toggle="modal" data-target="#modalLoginForm">LOGIN</a>
+          </div>
+          <div class="col-md-6 col-xl-5 mb-4">
+            <div class="card wow fadeInRight" data-wow-delay="0.3s">
+              <div class="card-body">
+                <div class="text-center">
+                  <h3 class="white-text">
+                    <i class="fa fa-user white-text"></i> Register:</h3>
+                  <hr class="hr-light">
+                </div>
+                <div class="md-form">
+                  <i class="fa fa-user prefix white-text active"></i>
+                  <input type="text" id="form3" class="white-text form-control uName">
+                  <label for="form3" class="active">Your name</label>
+                </div>
+                <div class="md-form">
+                  <i class="fa fa-envelope prefix white-text active"></i>
+                  <input type="email" id="form2" class="white-text form-control uEmail ">
+                  <label for="form2" class="active">Your email</label>
+                </div>
+                <div class="md-form">
+                  <i class="fa fa-lock prefix white-text active"></i>
+                  <input type="password" id="form4" class="white-text form-control pWord">
+                  <label for="form4">Your password</label>
+                </div>
+                <div class="text-center mt-4">
+                  <button class="btn btn-indigo signUp">Sign up</button>
+                  <hr class="hr-light mb-3 mt-4">
+                  <div class="inline-ul text-center d-flex justify-content-center">
+                    <a class="p-2 m-2 tw-ic">
+                      <i class="fa fa-twitter white-text"></i>
+                    </a>
+                    <a class="p-2 m-2 li-ic">
+                      <i class="fa fa-linkedin white-text"> </i>
+                    </a>
+                    <a class="p-2 m-2 ins-ic">
+                      <i class="fa fa-instagram white-text"> </i>
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+
+  <!-- SCRIPTS -->
+  <!-- JQuery -->
+  <script type="text/javascript" src="js/jquery-3.3.1.min.js"></script>
+  <!-- Bootstrap tooltips -->
+  <script type="text/javascript" src="js/popper.min.js"></script>
+  <!-- Bootstrap core JavaScript -->
+  <script type="text/javascript" src="js/bootstrap.min.js"></script>
+  <!-- MDB core JavaScript -->
+  <script type="text/javascript" src="js/mdb.min.js"></script>
+  <!-- Smart Home Project -->
+  <script type="text/javascript" src="js/signUpLogin.js"></script>
+</body>
+
+</html>

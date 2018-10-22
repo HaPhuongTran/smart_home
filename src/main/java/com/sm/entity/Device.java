@@ -3,6 +3,8 @@ package com.sm.entity;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
@@ -15,7 +17,11 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 public class Device {
 	
 	@Id
-	@Column(name = "ip", nullable = false)
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Column(name = "id", nullable = false)
+	private int id;
+	
+	@Column(name = "ip")
 	private String ip;
 	
 	@Column(name = "name", nullable = false)
@@ -32,6 +38,15 @@ public class Device {
 	
 	public Device(String ip) {
 		this.ip = ip;
+	}
+
+	
+	public int getId() {
+		return id;
+	}
+
+	public void setId(int id) {
+		this.id = id;
 	}
 
 	public String getIp() {

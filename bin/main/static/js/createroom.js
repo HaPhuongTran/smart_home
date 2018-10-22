@@ -2,17 +2,31 @@
  $(document).ready(function(){
  	var userinfo, homeinfo;
  	var getHomeName, getUserName;
- 	var countroom, status_create;
+ 	var countroom = 0, status_create, counthome = 0;
+ 	var temperture_humidity;
  	$(".createroom").load("model_createroom.html");
  	var hasStorage = ("sessionStorage" in window && window.sessionStorage),
 		storageKey = "sessionUser",
     	now, expiration, dataStorage = false;
     checkSessionUser();
-    addHomeToList(getUser(getUserName).home);
+    addHomeToList(getUser(getUserName).home, counthome);
     loadRoomOfHome(getHome(getHomeName).rooms);
     addRoom();
+    swichHome(counthome);
+    getTempatureHumidity();
+    setTemperatureOut();
+    setHumidityOut();
+    setTemperatureIn();
+    setHumidityIn();
 
     setInterval(function(){checkSessionUser();}, 3000000);
+    setInterval(function(){
+    	getTempatureHumidity();
+    	setTemperatureOut();
+    	setHumidityOut();
+    	setTemperatureIn();
+    	setHumidityIn();
+    }, 5000);
 
 	function checkSessionUser(){
     	if(hasStorage){
@@ -31,18 +45,25 @@
 	            	getHomeName = dataStorage.userData.homename;
 	            	getUserName = dataStorage.userData.username;
 	            	$(".username").html(dataStorage.userData.username);
+	            	$(".thisroom").html(dataStorage.userData.homename);
 	            }
 	    	}
     	}
     }
 
-    function addHomeToList(listhome){
-    	for(var list = 0; list<listhome.length; list++){
+    function addHomeToList(listhome, homecount){
+    	for(homecount; homecount<listhome.length; homecount++){
     		$(".listhome").append(
-    			'<a class="dropdown-item" href="#">'+listhome[list].nameHome+'</a>'
+    			'<a class="dropdown-item listhome'+homecount+'" href="newroom.html">'+listhome[homecount].nameHome+'</a>'
     		)
     	}
     }
+
+    function swichHome(homecount){
+    	$(".listhome"+homecount).click(function(){
+    		loadRoomOfHome(getHome(this.val()));
+    	})
+	}
 
     function getHome(homename){
     	$.ajax({
@@ -57,9 +78,12 @@
     }
 
     function loadRoomOfHome(listroom){
-    	$(".wellcome").remove();
-    	for(countroom = 0; countroom<listroom.length; countroom++){
+    	if(listroom.length>0){
+    		$(".wellcome").remove();
+    	}
+    	for(countroom; countroom<listroom.length; countroom++){
     		appendRoom(countroom, listroom[countroom].nameRoom);
+    		deleteRoom(countroom,listroom[countroom].nameRoom);
     	}
     }
 
@@ -78,7 +102,6 @@
 	function addRoom(){
 		$(".btn-add").click(function(){
 			$(".wellcome").remove();
-			// appendRoom(0);
 			createRoom();
 		});
 	}
@@ -87,6 +110,8 @@
 		$('.btnOk').one('click', function(){
 			var roomname = $('.roomname').val();
 			getInfoCreateRoom(saveRoom(roomname,countroom), roomname);
+			deleteRoom(countroom,roomname);
+			countroom++;
 		})
 	}
 
@@ -103,6 +128,7 @@
 		}).fail(function(data, textStatus, xhr){
 				 status_create = data.status;
 		});
+
 		return status_create;
 	}
 
@@ -114,9 +140,70 @@
     	}
     }
 
+    function deleteRoom(roomcount, nameroom){
+    	$(".delete"+roomcount).click(function(){
+    		$.ajax({
+	    	async : false,
+			method: "delete",
+			data: JSON.stringify({ nameRoom:nameroom }),
+			contentType: "application/json",
+			url: "http://localhost/smarthome/deleteroom/"+nameroom
+			}).done(function(data, textStatus, xhr){
+				status_create = xhr.status;
+			}).fail(function(data, textStatus, xhr){
+				status_create = data.status;
+			});
+			if(status_create == 200){
+    			$('.room'+roomcount).remove();
+    			alert("Delete Success");
+	    	}else if(status_create == 302){
+	    		alert("Can't delete");
+	    	}
+    	})
+    }
+
+    function getTempatureHumidity(){
+		
+		$.ajax({
+			async:false,
+			url: "https://api.openweathermap.org/data/2.5/weather?q=Ho%20Chi%20Minh%20City,VN&APPID=efe6e214a09caa3cd0319cef3384a9fd&units=metric"
+		}).done(function(data, textStatus, xhr){
+			var temperHumi = '[{"temperature":"'+data.main.temp+'"}, {"humidity": "'+data.main.humidity+'"}]';
+			temperture_humidity = JSON.parse(temperHumi);
+		});
+	}
+
+	function setTemperatureOut(){
+		for(var temp = 0; temp<countroom; temp++){
+			$(".tempertaureOut"+temp).html(temperture_humidity[0].temperature);
+		}
+	}
+
+	function setHumidityOut(){
+		for(var temp = 0; temp<countroom; temp++){
+			$(".humidityOut"+temp).html(temperture_humidity[1].humidity);
+		}
+	}
+
+	function setTemperatureIn(){
+		for(var temp = 0; temp<countroom; temp++){
+			$(".tempertaureIn"+temp).html(Math.floor(Math.random()*100)-50);
+		}
+	}
+
+	function setHumidityIn(){
+		for(var temp = 0; temp<countroom; temp++){
+			$(".humidityIn"+temp).html(Math.floor(Math.random()*100)-50);
+		}
+	}
+
+	function detailRoom(){
+
+	}
+
 	function appendRoom(roomcount, roomname){
 		$(".row").append(
-			 '<div class="col-sm-4 room-contain">'
+			 '<div class="col-sm-4 room-contain room'+roomcount+'">'
 				+'<div class="card card-image home">'
 					+'<div class="deleteroom">'
 						+'<button type="button" class="close delete'+roomcount+'" aria-label="Close">'

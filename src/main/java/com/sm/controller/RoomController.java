@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.sm.entity.Device;
 import com.sm.entity.HomeProject;
 import com.sm.entity.Rooms;
 import com.sm.service.HomeService;
@@ -65,10 +66,17 @@ public class RoomController {
 		return roomService.getListRooms(name_home);
 	}
 	
-	@RequestMapping(value = "/deleteroom", method = RequestMethod.POST, headers="Accept=application/json")
-	public ResponseEntity<HttpStatus> deleteRoom(@RequestBody Rooms room){
-		roomService.deleteRoom (room);
-		return new ResponseEntity<>(HttpStatus.OK);
+	@RequestMapping(value = "/deleteroom/{name_room}", method = RequestMethod.DELETE, headers="Accept=application/json")
+	public ResponseEntity<HttpStatus> deleteRoom(@PathVariable("name_room") String name_room){
+		Rooms room = roomService.getRoom(name_room);
+		List<Device> devices = room.getDevices();
+		if(devices.size()<=0) {
+			roomService.deleteRoom (room);
+			return new ResponseEntity<>(HttpStatus.OK);
+		}else {
+			return new ResponseEntity<>(HttpStatus.FOUND);
+		}
+		
 	}
 	
 }

@@ -33,7 +33,7 @@ public class HomeProject {
 	@OneToMany(mappedBy = "home", fetch = FetchType.EAGER)
 	private List<Rooms> rooms;
 	
-	@ManyToOne(cascade = CascadeType.ALL)
+	@ManyToOne
 	@JoinColumn(name = "user_id", referencedColumnName = "id")
 	private Account account;
 	
