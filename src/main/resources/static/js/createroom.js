@@ -5,6 +5,7 @@
  	var countroom = 0, status_create, counthome = 0;
  	var temperture_humidity;
  	$(".createroom").load("model_createroom.html");
+ 	$(".detailroom").load("modal_detailroom.html");
  	var hasStorage = ("sessionStorage" in window && window.sessionStorage),
 		storageKey = "sessionUser",
     	now, expiration, dataStorage = false;
@@ -12,7 +13,9 @@
     addHomeToList(getUser(getUserName).home, counthome);
     loadRoomOfHome(getHome(getHomeName).rooms);
     addRoom();
-    swichHome(counthome);
+    for(var count =0; count<=counthome; count++){
+    	swichHome(count);
+    }
     getTempatureHumidity();
     setTemperatureOut();
     setHumidityOut();
@@ -54,14 +57,18 @@
     function addHomeToList(listhome, homecount){
     	for(homecount; homecount<listhome.length; homecount++){
     		$(".listhome").append(
-    			'<a class="dropdown-item listhome'+homecount+'" href="newroom.html">'+listhome[homecount].nameHome+'</a>'
+    			'<a class="dropdown-item listhome'+homecount+'" href="#">'+listhome[homecount].nameHome+'</a>'
     		)
+    		counthome++
     	}
     }
 
     function swichHome(homecount){
     	$(".listhome"+homecount).click(function(){
-    		loadRoomOfHome(getHome(this.val()));//review here
+    		countroom = 0;
+    		$(".room-contain").remove();
+    		$(".thisroom").text($(this).text());
+    		loadRoomOfHome(getHome($(this).text()).rooms);//review here
     	})
 	}
 
@@ -122,7 +129,7 @@
 			method: "post",
 			data: JSON.stringify({ nameRoom:roomname }),
 			contentType: "application/json",
-			url: "http://localhost/smarthome/createroom/"+getHomeName
+			url: "http://localhost/smarthome/createroom/"+$('.thisroom').text()
 		}).done(function(data, textStatus, xhr){
 			status_create = xhr.status;
 		}).fail(function(data, textStatus, xhr){
@@ -197,8 +204,10 @@
 		}
 	}
 
-	function detailRoom(){
+	function detailRoom(roomcount){
+		$(".detail-btn"+roomcount).click(function(){
 
+		})
 	}
 
 	function appendRoom(roomcount, roomname){
@@ -225,19 +234,19 @@
 									+'</thead>'
 									+'<tbody>'
 										+'<tr>'
-											+'<td>Temperature</td>'
+											+'<td>Temperature(°C)</td>'
 											+'<td class="tempertaureIn'+roomcount+'"></td>'
 											+'<td class="tempertaureOut'+roomcount+'"></td>'
 										+'</tr>'
 										+'<tr>'
-											+'<td>Humidity</td>'
+											+'<td>Humidity(&#37;)</td>'
 											+'<td class = "humidityIn'+roomcount+'"></td>'
 											+'<td class = "humidityOut'+roomcount+'"></td>'
 										+'</tr>'
 									+'</tbody>'
 								+'</table>'
 							+'</div>'
-							+'<button type="button" class="btn btn-default detail-btn'+roomcount+'">Detail</button>'
+							+'<button type="button" data-toggle="modal" data-target="#modaldetailroom" class="btn btn-default detail-btn'+roomcount+'">Detail</button>'
 						+'</div>'
 					+'</div>'
 				+'</div>'
