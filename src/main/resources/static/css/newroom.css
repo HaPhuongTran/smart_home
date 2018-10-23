@@ -46,3 +46,12 @@ header{
 .close span{
 	color: white;
 }
+
+.sui-button-cell{
+    text-align: center;
+}
+
+.sui-checkbox{
+    font-size: 17px !important;
+    padding-bottom: 4px !important;
+}
