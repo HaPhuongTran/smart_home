@@ -13,6 +13,7 @@
     addHomeToList(getUser(getUserName).home, counthome);
     loadRoomOfHome(getHome(getHomeName).rooms);
     addRoom();
+
     for(var count =0; count<=counthome; count++){
     	swichHome(count);
     }
@@ -90,6 +91,7 @@
     	}
     	for(countroom; countroom<listroom.length; countroom++){
     		appendRoom(countroom, listroom[countroom].nameRoom);
+    		detailRoom(countroom);
     		deleteRoom(countroom,listroom[countroom].nameRoom);
     	}
     }
@@ -117,6 +119,7 @@
 		$('.btnOk').one('click', function(){
 			var roomname = $('.roomname').val();
 			getInfoCreateRoom(saveRoom(roomname,countroom), roomname);
+			detailRoom(countroom);
 			deleteRoom(countroom,roomname);
 			countroom++;
 		})
@@ -204,9 +207,17 @@
 		}
 	}
 
-	function detailRoom(roomcount){
+	function detailRoom(roomcount){// REVIEW THIS FUNCTION
 		$(".detail-btn"+roomcount).click(function(){
-
+			var listroom = homeinfo.rooms;
+			var deviceSource;
+			for(var list = 0; list<listroom.length; list++){
+				if($(".nameroom"+roomcount).text() == listroom[list].devices.nameDevice){//CAN'T GET NAME OF ROOM
+					deviceSource = listroom[list];
+					break;
+				}
+			}
+			localStorage.setItem('dataDevice', deviceSource);
 		})
 	}
 
@@ -222,7 +233,7 @@
 					+'<div class="text-white text-center d-flex align-items-center rgba-black-strong py-5 px-4">'
 						+'<div class="contain-info">'
 							+'<h5 class="pink-text"><i class="fa fa-pie-chart"></i> Report</h5>'
-							+'<h3 class="card-title pt-2 nameroom'+roomcount+'"><strong>'+roomname+'</strong></h3>'
+							+'<h3 class="card-title pt-2 nameroom'+roomcount+'">'+roomname+'</h3>'
 							+'<div>'
 								+'<table class="table">'
 									+'<thead>'
