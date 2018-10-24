@@ -20,8 +20,8 @@ public class DeviceServiceImpl implements DeviceService {
 	
 	@Override
 	@Transactional
-	public void save(List<Device> devices) {
-		deviceDao.save(devices);
+	public void saveOrUpdate(List<Device> devices) {
+		deviceDao.saveOrUpdate(devices);
 	}
 
 }

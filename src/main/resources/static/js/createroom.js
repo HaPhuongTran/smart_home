@@ -212,12 +212,26 @@
 			var listroom = homeinfo.rooms;
 			var deviceSource;
 			for(var list = 0; list<listroom.length; list++){
-				if($(".nameroom"+roomcount).text() == listroom[list].devices.nameDevice){
-					deviceSource = listroom[list];
+				if($(".nameroom"+roomcount).text() === listroom[list].nameRoom){
+					deviceSource = listroom[list].devices;
 					break;
 				}
 			}
+
+			if(deviceSource != null){
+				createTableDevice(deviceSource);
+			}else{
+				createTableDevice(initDataSource);
+			}
+			closeDetailRoom();
 			// localStorage.setItem('dataDevice', deviceSource);
+		})
+	}
+
+	function closeDetailRoom(){
+		$(".close-detailroom").click(function(){
+			var data = [];
+			createTableDevice(data);
 		})
 	}
 

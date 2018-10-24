@@ -24,7 +24,7 @@ public class DeviceController {
 
 	@RequestMapping(value = "/savedevice", method = RequestMethod.POST)
 	public ResponseEntity<HttpStatus> createDevices( @RequestBody List<Device> devices){
-		deviceService.save(devices);
+		deviceService.saveOrUpdate(devices);
 		return new ResponseEntity<>(HttpStatus.CREATED);
 	}
 	

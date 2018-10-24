@@ -207,17 +207,31 @@
 		}
 	}
 
-	function detailRoom(roomcount){// REVIEW THIS FUNCTION
+	function detailRoom(roomcount){// REVIEW THIS FUNCTION, CALL FUNCTION FROM ANOTHER JS FILE
 		$(".detail-btn"+roomcount).click(function(){
 			var listroom = homeinfo.rooms;
 			var deviceSource;
 			for(var list = 0; list<listroom.length; list++){
-				if($(".nameroom"+roomcount).text() == listroom[list].devices.nameDevice){//CAN'T GET NAME OF ROOM
-					deviceSource = listroom[list];
+				if($(".nameroom"+roomcount).text() === listroom[list].nameRoom){
+					deviceSource = listroom[list].devices;
 					break;
 				}
 			}
-			localStorage.setItem('dataDevice', deviceSource);
+
+			if(deviceSource != null){
+				createTableDevice(deviceSource);
+			}else{
+				createTableDevice(initDataSource);
+			}
+			closeDetailRoom();
+			// localStorage.setItem('dataDevice', deviceSource);
+		})
+	}
+
+	function closeDetailRoom(){
+		$(".close-detailroom").click(function(){
+			var data = [];
+			createTableDevice(data);
 		})
 	}
 

@@ -5,5 +5,5 @@ import java.util.List;
 import com.sm.entity.Device;
 
 public interface DeviceDao {
-	public void save(List<Device> devices);
+	public void saveOrUpdate(List<Device> devices);
 }

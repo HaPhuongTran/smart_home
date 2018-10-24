@@ -1,18 +1,18 @@
-$(document).ready(function () {
-	var initDataSource = [
-						{id: 0, ip: "0.0.0.0", name:"Humidity Device Name", state:"off", temparture:0, humidity: 0},
-						{id: 0, ip: "0.0.0.0", name:"Temperature Device Name", state:"off"},
-						{id: 0, ip: "0.0.0.0", name:"Air-Conditioner Name", state:"off"},
-						{id: 0, ip: "0.0.0.0", name:"Heating Equipment Name", state:"off"},
-						{id: 0, ip: "0.0.0.0", name:"Nebulizer Name", state:"off"},
-						{id: 0, ip: "0.0.0.0", name:"Dehumidifier Name", state:"off"}
-					] 
-	var getDataDevice = localStorage.getItem('dataDevice');
-	if(getDataDevice != null){
-		createTableDevice(getDataDevice);
-	}else{
-		createTableDevice(initDataSource);
-	}
+// $(document).ready(function () {
+//	var initDataSource = [
+//						{id: 0, ip: "0.0.0.0", name:"Humidity Device Name", state:"off"},
+//						{id: 0, ip: "0.0.0.0", name:"Temperature Device Name", state:"off"},
+//						{id: 0, ip: "0.0.0.0", name:"Air-Conditioner Name", state:"off"},
+//						{id: 0, ip: "0.0.0.0", name:"Heating Equipment Name", state:"off"},
+//						{id: 0, ip: "0.0.0.0", name:"Nebulizer Name", state:"off"},
+//						{id: 0, ip: "0.0.0.0", name:"Dehumidifier Name", state:"off"}
+//					] 
+	// var getDataDevice = localStorage.getItem('dataDevice');
+	// if(getDataDevice != null){
+	// 	createTableDevice(getDataDevice);
+	// }else{
+	// 	createTableDevice(initDataSource);
+	// }
 
 	function createTableDevice(datasource){
 	    $("#grid").shieldGrid({
@@ -21,10 +21,8 @@ $(document).ready(function () {
 	            schema: {
 	                fields:{
 						ip: {path:"ip", type: String},
-						name: {path:"name", type: String},
-						state: {path: "state", type: String},
-						temparture: {path: "temp", type: Number},
-						humidity: {path: "humidity", type:Number}
+						nameDevice: {path:"nameDevice", type: String},
+						state: {path: "state", type: String}
 					}
 	            }
 	        },
@@ -34,10 +32,8 @@ $(document).ready(function () {
 	        rowHover: false,
 	        columns: [
 	            { field: "ip", title: "Device IP", width: "120px" },
-				{ field: "name", title: "Device Name", width: "120px" },
+				{ field: "nameDevice", title: "Device Name", width: "120px" },
 				{ field: "state", title: "State", width: "120px"},
-				{ field: "temparture", title : "Temparture", width: "120px"},
-				{ field: "humidity", title: "Humidity", width: "120px"},
 				{
 	                width: 150,
 	                title: "Update/Delete Column",
@@ -64,4 +60,4 @@ $(document).ready(function () {
 	}
 
    
-});
+// });

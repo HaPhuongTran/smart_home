@@ -18,10 +18,10 @@ public class DeviceDaoImpl implements DeviceDao {
 	SessionFactory sessionFactory;
 
 	@Override
-	public void save(List<Device> devices) {
+	public void saveOrUpdate(List<Device> devices) {
 		Session session = sessionFactory.getCurrentSession();
 		for (Device device : devices) {
-			session.save(device);
+			session.saveOrUpdate(device);
 		}
 	}
 	
