@@ -17,20 +17,20 @@
     for(var count =0; count<=counthome; count++){
     	swichHome(count);
     }
-    getTempatureHumidity();
-    setTemperatureOut();
-    setHumidityOut();
-    setTemperatureIn();
-    setHumidityIn();
+    // getTempatureHumidity();
+    // setTemperatureOut();
+    // setHumidityOut();
+    // setTemperatureIn();
+    // setHumidityIn();
 
     setInterval(function(){checkSessionUser();}, 3000000);
-    setInterval(function(){
-    	getTempatureHumidity();
-    	setTemperatureOut();
-    	setHumidityOut();
-    	setTemperatureIn();
-    	setHumidityIn();
-    }, 5000);
+    // setInterval(function(){
+    // 	getTempatureHumidity();
+    // 	setTemperatureOut();
+    // 	setHumidityOut();
+    // 	setTemperatureIn();
+    // 	setHumidityIn();
+    // }, 5000);
 
 	function checkSessionUser(){
     	if(hasStorage){
@@ -91,9 +91,22 @@
     	}
     	for(countroom; countroom<listroom.length; countroom++){
     		appendRoom(countroom, listroom[countroom].nameRoom);
+    		if(listroom[countroom].devices.length>0){
+    			scheduleTempHumi(countroom);
+		    }
     		detailRoom(countroom);
     		deleteRoom(countroom,listroom[countroom].nameRoom);
     	}
+    }
+
+    function scheduleTempHumi(counttag){
+    	setInterval(function(){
+	    	getTempatureHumidity();
+	    	setTemperatureOut(counttag);
+	    	setHumidityOut(counttag);
+	    	setTemperatureIn(counttag);
+	    	setHumidityIn(counttag);
+	    	}, 5000);
     }
 
     function getUser(username){
@@ -119,6 +132,7 @@
 		$('.btnOk').one('click', function(){
 			var roomname = $('.roomname').val();
 			getInfoCreateRoom(saveRoom(roomname,countroom), roomname);
+			// loadRoomOfHome(getHome(getHomeName).rooms);
 			detailRoom(countroom);
 			deleteRoom(countroom,roomname);
 			countroom++;
@@ -183,32 +197,33 @@
 		});
 	}
 
-	function setTemperatureOut(){
-		for(var temp = 0; temp<countroom; temp++){
+	function setTemperatureOut(temp){
+		// for(var temp = 0; temp<countroom; temp++){
 			$(".tempertaureOut"+temp).html(temperture_humidity[0].temperature);
-		}
+		// }
 	}
 
-	function setHumidityOut(){
-		for(var temp = 0; temp<countroom; temp++){
+	function setHumidityOut(temp){
+		// for(var temp = 0; temp<countroom; temp++){
 			$(".humidityOut"+temp).html(temperture_humidity[1].humidity);
-		}
+		// }
 	}
 
-	function setTemperatureIn(){
-		for(var temp = 0; temp<countroom; temp++){
+	function setTemperatureIn(temp){
+		// for(var temp = 0; temp<countroom; temp++){
 			$(".tempertaureIn"+temp).html(Math.floor(Math.random()*100)-50);
-		}
+		// }
 	}
 
-	function setHumidityIn(){
-		for(var temp = 0; temp<countroom; temp++){
+	function setHumidityIn(temp){
+		// for(var temp = 0; temp<countroom; temp++){
 			$(".humidityIn"+temp).html(Math.floor(Math.random()*100)-50);
-		}
+		// }
 	}
 
 	function detailRoom(roomcount){// REVIEW THIS FUNCTION, CALL FUNCTION FROM ANOTHER JS FILE
 		$(".detail-btn"+roomcount).click(function(){
+			$(".content-gird").append('<div id="grid"></div>');
 			var listroom = homeinfo.rooms;
 			var deviceSource;
 			for(var list = 0; list<listroom.length; list++){
@@ -218,20 +233,37 @@
 				}
 			}
 
-			if(deviceSource != null){
+			if(deviceSource.length>0){
 				createTableDevice(deviceSource);
 			}else{
+				var initDataSource = [
+						{id: 0, ip: "0.0.0.0", name:"Humidity Device Name", state:"off"},
+						{id: 0, ip: "0.0.0.0", name:"Temperature Device Name", state:"off"},
+						{id: 0, ip: "0.0.0.0", name:"Air-Conditioner Name", state:"off"},
+						{id: 0, ip: "0.0.0.0", name:"Heating Equipment Name", state:"off"},
+						{id: 0, ip: "0.0.0.0", name:"Nebulizer Name", state:"off"},
+						{id: 0, ip: "0.0.0.0", name:"Dehumidifier Name", state:"off"}
+					] 
 				createTableDevice(initDataSource);
 			}
 			closeDetailRoom();
+			saveDevice();
 			// localStorage.setItem('dataDevice', deviceSource);
 		})
 	}
 
 	function closeDetailRoom(){
 		$(".close-detailroom").click(function(){
-			var data = [];
-			createTableDevice(data);
+			$("#grid").remove();
+		})
+	}
+
+	function saveDevice(){
+		$(".save-btn").click(function(){
+
+			var test = $(".sui-row").val();
+			var test2 = $(".sui-row").text();
+			var test3 = $(".sui-row").html();
 		})
 	}
 

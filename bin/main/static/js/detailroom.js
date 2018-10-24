@@ -20,9 +20,10 @@
 	            data: datasource,
 	            schema: {
 	                fields:{
-						ip: {path:"ip", type: String},
+						ip: {path:"ip", type: String, id:"IP"},
 						nameDevice: {path:"nameDevice", type: String},
-						state: {path: "state", type: String}
+						state: {path: "state", type: String},
+						type: {path: "type", type: String}
 					}
 	            }
 	        },
@@ -34,6 +35,7 @@
 	            { field: "ip", title: "Device IP", width: "120px" },
 				{ field: "nameDevice", title: "Device Name", width: "120px" },
 				{ field: "state", title: "State", width: "120px"},
+				{ field: "type", title: "Type of device", width: "120px", editor:myCustomEditor},
 				{
 	                width: 150,
 	                title: "Update/Delete Column",
@@ -55,9 +57,25 @@
 	                    }
 	                }
 	            }
-	        }            
+	        },
+	        events: {
+		      getCustomEditorValue: function(e) {
+		        e.value = $("#dropdown").swidget().value();
+		        $("#dropdown").swidget().destroy();
+		      }
+		    }            
 	    });
 	}
 
+function myCustomEditor(cell, item) {
+    $('<div id="dropdown"/>')
+      .appendTo(cell)
+      .shieldDropDown({
+        dataSource: {
+          data: ["Dehumidifier", "Nebulizer", "Heating Equipment", "Air-Conditioner", "Temperature Device", "Humidity Device"]
+        },
+        value: !item["transport"] ? null : item["transport"].toString()
+      }).swidget().focus();
+  }
    
 // });
