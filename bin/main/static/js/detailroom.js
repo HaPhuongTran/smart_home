@@ -1,18 +1,3 @@
-// $(document).ready(function () {
-//	var initDataSource = [
-//						{id: 0, ip: "0.0.0.0", name:"Humidity Device Name", state:"off"},
-//						{id: 0, ip: "0.0.0.0", name:"Temperature Device Name", state:"off"},
-//						{id: 0, ip: "0.0.0.0", name:"Air-Conditioner Name", state:"off"},
-//						{id: 0, ip: "0.0.0.0", name:"Heating Equipment Name", state:"off"},
-//						{id: 0, ip: "0.0.0.0", name:"Nebulizer Name", state:"off"},
-//						{id: 0, ip: "0.0.0.0", name:"Dehumidifier Name", state:"off"}
-//					] 
-	// var getDataDevice = localStorage.getItem('dataDevice');
-	// if(getDataDevice != null){
-	// 	createTableDevice(getDataDevice);
-	// }else{
-	// 	createTableDevice(initDataSource);
-	// }
 
 	function createTableDevice(datasource){
 	    $("#grid").shieldGrid({
@@ -20,7 +5,8 @@
 	            data: datasource,
 	            schema: {
 	                fields:{
-						ip: {path:"ip", type: String, id:"IP"},
+	                	id: {path: "id", type: Number},
+						ip: {path:"ip", type: String},
 						nameDevice: {path:"nameDevice", type: String},
 						state: {path: "state", type: String},
 						type: {path: "type", type: String}
@@ -32,6 +18,7 @@
 	        },
 	        rowHover: false,
 	        columns: [
+	        	{ field: "id", title: "Device ID", width: "120px" },
 	            { field: "ip", title: "Device IP", width: "120px" },
 				{ field: "nameDevice", title: "Device Name", width: "120px" },
 				{ field: "state", title: "State", width: "120px"},
@@ -78,4 +65,3 @@ function myCustomEditor(cell, item) {
       }).swidget().focus();
   }
    
-// });

@@ -69,7 +69,7 @@
     		countroom = 0;
     		$(".room-contain").remove();
     		$(".thisroom").text($(this).text());
-    		loadRoomOfHome(getHome($(this).text()).rooms);//review here
+    		loadRoomOfHome(getHome($(this).text()).rooms);
     	})
 	}
 
@@ -198,37 +198,30 @@
 	}
 
 	function setTemperatureOut(temp){
-		// for(var temp = 0; temp<countroom; temp++){
 			$(".tempertaureOut"+temp).html(temperture_humidity[0].temperature);
-		// }
 	}
 
 	function setHumidityOut(temp){
-		// for(var temp = 0; temp<countroom; temp++){
 			$(".humidityOut"+temp).html(temperture_humidity[1].humidity);
-		// }
 	}
 
 	function setTemperatureIn(temp){
-		// for(var temp = 0; temp<countroom; temp++){
 			$(".tempertaureIn"+temp).html(Math.floor(Math.random()*100)-50);
-		// }
 	}
 
 	function setHumidityIn(temp){
-		// for(var temp = 0; temp<countroom; temp++){
 			$(".humidityIn"+temp).html(Math.floor(Math.random()*100)-50);
-		// }
 	}
 
-	function detailRoom(roomcount){// REVIEW THIS FUNCTION, CALL FUNCTION FROM ANOTHER JS FILE
+	function detailRoom(roomcount){
 		$(".detail-btn"+roomcount).click(function(){
 			$(".content-gird").append('<div id="grid"></div>');
-			var listroom = homeinfo.rooms;
-			var deviceSource;
+			var listroom = getHome($(".thisroom").text()).rooms;
+			var deviceSource, thisroom;
 			for(var list = 0; list<listroom.length; list++){
 				if($(".nameroom"+roomcount).text() === listroom[list].nameRoom){
 					deviceSource = listroom[list].devices;
+					thisroom = listroom[list];
 					break;
 				}
 			}
@@ -247,7 +240,7 @@
 				createTableDevice(initDataSource);
 			}
 			closeDetailRoom();
-			saveDevice();
+			saveDevice(thisroom, roomcount);
 			// localStorage.setItem('dataDevice', deviceSource);
 		})
 	}
@@ -258,12 +251,48 @@
 		})
 	}
 
-	function saveDevice(){
+	function saveDevice(thisroom, roomcount){
 		$(".save-btn").click(function(){
+			var listDevice = [];
+			var listDeviceSave = [];
+			var checksameip = false;
+			$(".sui-table tbody tr").each(function(){
+				var id = $(this).find("td").eq(0).text();
+				var ip = $(this).find("td").eq(1).text();
+				var namedevice = $(this).find("td").eq(2).text();
+				var state = $(this).find("td").eq(3).text();
+				var type = $(this).find("td").eq(4).text();
+				var temp = {id: id, ip:ip, nameDevice:namedevice, state:state, type:type};
+				listDevice.push(temp);
+			})
+			for( var i =1; i<listDevice.length - 1; i++){
+				if(listDevice[i].ip != "0.0.0.0" && listDevice[i].ip.length>0){
+					for (var j = i+1; j < listDevice.length; j++) {
+						if(listDevice[i].ip === listDevice[j].ip){
+							checksameip = true;
+							break;
+						}
+					}
+					listDeviceSave.push(listDevice[i]);
+				}
+			}
+			if(checksameip === true){
+				alert("can't use same ip for mutil device");
+			}else{
+				$.ajax({
+			    	async : false,
+					method: "post",
+					data: JSON.stringify(listDeviceSave),
+					contentType: "application/json",
+					url: "http://localhost/smarthome/savedevice/"+thisroom.nameRoom
+				}).done(function(data, textStatus, xhr){
+					status_create = xhr.status;
+				}).fail(function(data, textStatus, xhr){
+					status_create = data.status;
+				});
 
-			var test = $(".sui-row").val();
-			var test2 = $(".sui-row").text();
-			var test3 = $(".sui-row").html();
+				scheduleTempHumi(roomcount);
+			}
 		})
 	}
 

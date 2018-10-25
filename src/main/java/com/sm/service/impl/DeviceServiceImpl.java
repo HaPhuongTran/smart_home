@@ -9,6 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.sm.dao.DeviceDao;
 import com.sm.entity.Device;
+import com.sm.entity.Rooms;
 import com.sm.service.DeviceService;
 
 @Service
@@ -20,8 +21,24 @@ public class DeviceServiceImpl implements DeviceService {
 	
 	@Override
 	@Transactional
-	public void saveOrUpdate(List<Device> devices) {
-		deviceDao.saveOrUpdate(devices);
+	public Boolean saveOrUpdate(List<Device> devices, Rooms room) {
+		Boolean isexits = false;
+		List<Device> listdevice = room.getDevices();
+//		review here
+		for(Device device: devices) { 
+			if(device.getId() == 0) {
+				for(Device checkDevice: listdevice) {
+					if(device.getIp().equals(checkDevice.getIp())) 
+						isexits = true;
+				}
+			}
+		}
+		if(!isexits) {
+			deviceDao.saveOrUpdate(devices);
+			return true;
+		}else {
+			return false;
+		}
 	}
 
 }

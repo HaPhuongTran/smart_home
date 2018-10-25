@@ -6,13 +6,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.sm.entity.Device;
+import com.sm.entity.Rooms;
 import com.sm.service.DeviceService;
+import com.sm.service.RoomService;
 
 @RestController
 @CrossOrigin
@@ -21,11 +24,22 @@ public class DeviceController {
 	
 	@Autowired
 	DeviceService deviceService;
+	
+	@Autowired
+	RoomService roomService;
 
-	@RequestMapping(value = "/savedevice", method = RequestMethod.POST)
-	public ResponseEntity<HttpStatus> createDevices( @RequestBody List<Device> devices){
-		deviceService.saveOrUpdate(devices);
-		return new ResponseEntity<>(HttpStatus.CREATED);
+	@RequestMapping(value = "/savedevice/{room_name}", method = RequestMethod.POST)
+	public ResponseEntity<HttpStatus> createDevices( @RequestBody List<Device> devices, @PathVariable("room_name") String room_name){
+		Rooms room = roomService.getRoom(room_name);
+		for( Device device : devices){
+			device.setRoomId(room);
+		}
+		if(deviceService.saveOrUpdate(devices, room)) {
+			return new ResponseEntity<>(HttpStatus.CREATED);
+		}else {
+			return new ResponseEntity<>(HttpStatus.FOUND);
+		}
+		
 	}
 	
 //	@RequestMapping(value = "/getdevice", method = RequestMethod.GET)

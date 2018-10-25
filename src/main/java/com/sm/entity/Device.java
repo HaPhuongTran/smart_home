@@ -29,6 +29,9 @@ public class Device {
 	
 	@Column(name = "state")
 	private String state = "off";
+	
+	@Column(name = "type")
+	private String type;
 
 	@ManyToOne(cascade = CascadeType.ALL)
 	@JoinColumn(name = "id_room", referencedColumnName = "id", nullable = false)
