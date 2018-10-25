@@ -14,4 +14,10 @@
   color: #ffffff !important;
 }
 
+.inputpass p, .inputname p{
+	text-align: center; 
+	display: none;
+	color: red;
+}
+
 

@@ -42,13 +42,18 @@ $(document).ready(function(){
 		username = $(".uName").val();
 		password = $(".pWord").val();
 		var email = $(".uEmail").val();
-		if(username.length == 0){
+		var checkUserPass = true;
+		if(username.length < 6){
 			$(".uName").css("border-color", "red");
-			alertAnnounce("Please input username");
-		}else if(password.length ==0){
+			$(".inputname p").css("display", "block");
+			checkUserPass = false;
+		}
+		if(password.length < 6){
 			$(".pWord").css("border-color", "red");
-			alertAnnounce("Please input password");
-		}else{
+			$(".inputpass p").css("display", "block");
+			checkUserPass = false;
+		}
+		if(checkUserPass === true){
 			createAccount(username, password,email);
 		}
 	});
