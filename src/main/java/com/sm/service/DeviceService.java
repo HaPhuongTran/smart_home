@@ -7,4 +7,5 @@ import com.sm.entity.Rooms;
 
 public interface DeviceService {
 	public Boolean saveOrUpdate(List<Device> devices, Rooms room);
+	public void deleteDevice(Device device);
 }

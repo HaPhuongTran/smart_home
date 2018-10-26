@@ -6,4 +6,5 @@ import com.sm.entity.Device;
 
 public interface DeviceDao {
 	public void saveOrUpdate(List<Device> devices);
+	public void deleteDevice(Device device);
 }

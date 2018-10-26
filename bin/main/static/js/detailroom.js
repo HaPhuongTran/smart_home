@@ -40,6 +40,17 @@ function createTableDevice(datasource){
                 "delete": {
                     enabled: true,
                     template: function (item) {
+                        $.ajax({
+                            async : false,
+                            method: "delete",
+                            data: JSON.stringify({id: item.id, ip: item.ip, nameDevice: item.nameDevice, state: item.state, type: item.type}),
+                            contentType: "application/json",
+                            url: "http://localhost/smarthome/deletedevice/"+$(".detailroomname").text()
+                        }).done(function(data, textStatus, xhr){
+                                status_create = xhr.status;
+                        }).fail(function(data, textStatus, xhr){
+                                status_create = data.status;
+                        });
                         return "Delete row with ID = " + item.id
                     }
                 }

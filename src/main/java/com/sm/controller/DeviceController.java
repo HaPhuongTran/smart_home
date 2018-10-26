@@ -42,9 +42,15 @@ public class DeviceController {
 		
 	}
 	
-//	@RequestMapping(value = "/getdevice", method = RequestMethod.GET)
-//	public ResponseEntity<HttpStatus> getDevices( @RequestBody List<Device> devices){
-//		deviceService.getDevice(devices);
-//		return new ResponseEntity<>(HttpStatus.CREATED);
-//	}
+	@RequestMapping(value = "/deletedevice/{room_name}", method = RequestMethod.DELETE)
+	public ResponseEntity<HttpStatus> getDevices( @RequestBody Device device, @PathVariable("room_name") String room_name){
+		Rooms  room = roomService.getRoom(room_name);
+		device.setRoomId(room);
+		try {
+		deviceService.deleteDevice(device);}
+		catch(Exception e) {
+			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+		}
+		return new ResponseEntity<>(HttpStatus.OK);
+	}
 }

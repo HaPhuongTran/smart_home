@@ -24,5 +24,11 @@ public class DeviceDaoImpl implements DeviceDao {
 			session.saveOrUpdate(device);
 		}
 	}
+
+	@Override
+	public void deleteDevice(Device device) {
+		Session session = sessionFactory.getCurrentSession();
+		session.delete(device);
+	}
 	
 }

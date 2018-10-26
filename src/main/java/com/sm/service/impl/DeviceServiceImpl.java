@@ -41,4 +41,10 @@ public class DeviceServiceImpl implements DeviceService {
 		}
 	}
 
+	@Override
+	public void deleteDevice(Device device) {
+		deviceDao.deleteDevice(device);
+		
+	}
+
 }

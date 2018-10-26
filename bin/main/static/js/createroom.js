@@ -5,13 +5,14 @@
  	var countroom = 0, status_create, counthome = 0;
  	var temperture_humidity;
  	$(".createroom").load("model_createroom.html");
- 	$(".detailroom").load("modal_detailroom.html");
+ 	$(".modal-content").load("modal_detailroom.html");
  	var hasStorage = ("sessionStorage" in window && window.sessionStorage),
 		storageKey = "sessionUser",
     	now, expiration, dataStorage = false;
     checkSessionUser();
     addHomeToList(getUser(getUserName).home, counthome);
     loadRoomOfHome(getHome(getHomeName).rooms);
+    listenSaveDevice();
     addRoom();
 
     for(var count =0; count<=counthome; count++){
@@ -80,7 +81,7 @@
     	for(countroom; countroom<listroom.length; countroom++){
     		appendRoom(countroom, listroom[countroom].nameRoom);
     		if(listroom[countroom].devices.length>0){
-    			scheduleTempHumi(countroom);
+    			scheduleTempHumi(listroom[countroom].nameRoom);
 		    }
     		detailRoom(countroom);
     		deleteRoom(countroom,listroom[countroom].nameRoom);
@@ -94,7 +95,7 @@
 	    	setHumidityOut(counttag);
 	    	setTemperatureIn(counttag);
 	    	setHumidityIn(counttag);
-	    	}, 5000);
+	    	}, 30000);
     }
 
     function getUser(username){
@@ -120,7 +121,6 @@
 		$('.btnOk').one('click', function(){
 			var roomname = $('.roomname').val();
 			getInfoCreateRoom(saveRoom(roomname,countroom), roomname);
-			// loadRoomOfHome(getHome(getHomeName).rooms);
 			detailRoom(countroom);
 			deleteRoom(countroom,roomname);
 			countroom++;
@@ -201,13 +201,14 @@
 			$(".humidityIn"+temp).html(Math.floor(Math.random()*100)-50);
 	}
 
-	function detailRoom(roomcount){
+	function detailRoom(roomcount){//review here
 		$(".detail-btn"+roomcount).click(function(){
 			$(".content-gird").append('<div id="grid"></div>');
 			var listroom = getHome($(".thisroom").text()).rooms;
 			var deviceSource, thisroom;
 			for(var list = 0; list<listroom.length; list++){
 				if($(".nameroom"+roomcount).text() === listroom[list].nameRoom){
+					$(".detailroomname").text($(".nameroom"+roomcount).text());
 					deviceSource = listroom[list].devices;
 					thisroom = listroom[list];
 					break;
@@ -228,8 +229,6 @@
 				createTableDevice(initDataSource);
 			}
 			closeDetailRoom();
-			saveDevice(thisroom, roomcount);
-			// localStorage.setItem('dataDevice', deviceSource);
 		})
 	}
 
@@ -239,12 +238,12 @@
 		})
 	}
 
-	function validate( value ) {
+	function validate( value ) {//check here
 	    var ipRE = new RegExp( '^\d+\.\d+\.\d+\.\d+$' );
 	    alert(ipRE.test( value ));
 	}
 
-	function saveDevice(thisroom, roomcount){
+	function listenSaveDevice(){
 		$(".save-btn").click(function(){
 			var listDevice = [];
 			var listDeviceSave = [];
@@ -259,7 +258,7 @@
 				var temp = {id: id, ip:ip, nameDevice:namedevice, state:state, type:type};
 				listDevice.push(temp);
 			})
-			for( var i =1; i<listDevice.length - 1; i++){
+			for( var i =1; i<=listDevice.length - 1; i++){
 				if(listDevice[i].ip != "0.0.0.0" && listDevice[i].ip.length>0){
 					for (var j = i+1; j < listDevice.length; j++) {
 						if(listDevice[i].ip === listDevice[j].ip){
@@ -278,14 +277,13 @@
 					method: "post",
 					data: JSON.stringify(listDeviceSave),
 					contentType: "application/json",
-					url: "http://localhost/smarthome/savedevice/"+thisroom.nameRoom
+					url: "http://localhost/smarthome/savedevice/"+$(".detailroomname").text()//falses
 				}).done(function(data, textStatus, xhr){
 					status_create = xhr.status;
 				}).fail(function(data, textStatus, xhr){
 					status_create = data.status;
 				});
-
-				scheduleTempHumi(roomcount);
+				scheduleTempHumi($(".detailroomname").text());
 			}
 		})
 	}
@@ -315,13 +313,13 @@
 									+'<tbody>'
 										+'<tr>'
 											+'<td>Temperature(°C)</td>'
-											+'<td class="tempertaureIn'+roomcount+'"></td>'
-											+'<td class="tempertaureOut'+roomcount+'"></td>'
+											+'<td class="tempertaureIn'+roomname+'"></td>'
+											+'<td class="tempertaureOut'+roomname+'"></td>'
 										+'</tr>'
 										+'<tr>'
 											+'<td>Humidity(&#37;)</td>'
-											+'<td class = "humidityIn'+roomcount+'"></td>'
-											+'<td class = "humidityOut'+roomcount+'"></td>'
+											+'<td class = "humidityIn'+roomname+'"></td>'
+											+'<td class = "humidityOut'+roomname+'"></td>'
 										+'</tr>'
 									+'</tbody>'
 								+'</table>'

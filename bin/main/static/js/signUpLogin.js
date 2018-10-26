@@ -70,7 +70,6 @@ $(document).ready(function(){
 				    }
 				}
 				sessionStorage.setItem('sessionUser', JSON.stringify(sessionUser));
-				// localStorage.setItem("username",username);
 				document.location.href = "newhome.html";
 			}
 			else{
