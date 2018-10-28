@@ -6,6 +6,6 @@ import com.sm.entity.Device;
 import com.sm.entity.Rooms;
 
 public interface DeviceService {
-	public Boolean saveOrUpdate(List<Device> devices, Rooms room);
-	public void deleteDevice(Device device);
+	public Boolean saveOrUpdate(List<Device> devices, List<Rooms> rooms);
+	public void deleteDevice(int id);
 }

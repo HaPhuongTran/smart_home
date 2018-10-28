@@ -1,5 +1,6 @@
 package com.sm.controller;
 
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -66,9 +67,9 @@ public class RoomController {
 		return roomService.getListRooms(name_home);
 	}
 	
-	@RequestMapping(value = "/deleteroom/{name_room}", method = RequestMethod.DELETE, headers="Accept=application/json")
-	public ResponseEntity<HttpStatus> deleteRoom(@PathVariable("name_room") String name_room){
-		Rooms room = roomService.getRoom(name_room);
+	@RequestMapping(value = "/deleteroom/{name_room}/{name_home}", method = RequestMethod.DELETE, headers="Accept=application/json")
+	public ResponseEntity<HttpStatus> deleteRoom(@PathVariable("name_room") String name_room, @PathVariable("name_home") String name_home){
+		Rooms room = roomService.getRoom(name_home);
 		List<Device> devices = room.getDevices();
 		if(devices.size()<=0) {
 			roomService.deleteRoom (room);

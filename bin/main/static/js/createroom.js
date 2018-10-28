@@ -3,16 +3,16 @@
  	var userinfo, homeinfo;
  	var getHomeName, getUserName;
  	var countroom = 0, status_create, counthome = 0;
- 	var temperture_humidity;
+ 	var temperture_humidity, deviceSource;
  	$(".createroom").load("model_createroom.html");
- 	$(".modal-content").load("modal_detailroom.html");
  	var hasStorage = ("sessionStorage" in window && window.sessionStorage),
 		storageKey = "sessionUser",
     	now, expiration, dataStorage = false;
     checkSessionUser();
+    listenSaveDevice();
+	addDevice();
     addHomeToList(getUser(getUserName).home, counthome);
     loadRoomOfHome(getHome(getHomeName).rooms);
-    listenSaveDevice();
     addRoom();
 
     for(var count =0; count<=counthome; count++){
@@ -159,7 +159,7 @@
 			method: "delete",
 			data: JSON.stringify({ nameRoom:nameroom }),
 			contentType: "application/json",
-			url: "http://localhost/smarthome/deleteroom/"+nameroom
+			url: "http://localhost/smarthome/deleteroom/"+nameroom+"/"+$(".thisroom").text()
 			}).done(function(data, textStatus, xhr){
 				status_create = xhr.status;
 			}).fail(function(data, textStatus, xhr){
@@ -205,7 +205,7 @@
 		$(".detail-btn"+roomcount).click(function(){
 			$(".content-gird").append('<div id="grid"></div>');
 			var listroom = getHome($(".thisroom").text()).rooms;
-			var deviceSource, thisroom;
+			var thisroom;
 			for(var list = 0; list<listroom.length; list++){
 				if($(".nameroom"+roomcount).text() === listroom[list].nameRoom){
 					$(".detailroomname").text($(".nameroom"+roomcount).text());
@@ -218,24 +218,24 @@
 			if(deviceSource.length>0){
 				createTableDevice(deviceSource);
 			}else{
-				var initDataSource = [
-						{id: 0, ip: "0.0.0.0", name:"Humidity Device Name", state:"off"},
-						{id: 0, ip: "0.0.0.0", name:"Temperature Device Name", state:"off"},
-						{id: 0, ip: "0.0.0.0", name:"Air-Conditioner Name", state:"off"},
-						{id: 0, ip: "0.0.0.0", name:"Heating Equipment Name", state:"off"},
-						{id: 0, ip: "0.0.0.0", name:"Nebulizer Name", state:"off"},
-						{id: 0, ip: "0.0.0.0", name:"Dehumidifier Name", state:"off"}
-					] 
-				createTableDevice(initDataSource);
+				deviceSource = [
+					{id: 0, ip: "0.0.0.0", nameDevice:"Humidity Device Name", state:"off"},
+					{id: 0, ip: "0.0.0.0", nameDevice:"Temperature Device Name", state:"off"},
+					{id: 0, ip: "0.0.0.0", nameDevice:"Air-Conditioner Name", state:"off"},
+					{id: 0, ip: "0.0.0.0", nameDevice:"Heating Equipment Name", state:"off"},
+					{id: 0, ip: "0.0.0.0", nameDevice:"Nebulizer Name", state:"off"},
+					{id: 0, ip: "0.0.0.0", nameDevice:"Dehumidifier Name", state:"off"}
+				] 
+				createTableDevice(deviceSource);
 			}
-			closeDetailRoom();
+			$(".close-detailroom").click(function(){
+				closeDetailRoom();
+			})
 		})
 	}
 
 	function closeDetailRoom(){
-		$(".close-detailroom").click(function(){
-			$("#grid").remove();
-		})
+		$("#grid").remove();
 	}
 
 	function validate( value ) {//check here
@@ -251,7 +251,7 @@
 			$(".sui-table tbody tr").each(function(){
 				var id = $(this).find("td").eq(0).text();
 				var ip = $(this).find("td").eq(1).text();
-				// validate(ip);
+				validate(ip.substr(0, ip.length-1));
 				var namedevice = $(this).find("td").eq(2).text();
 				var state = $(this).find("td").eq(3).text();
 				var type = $(this).find("td").eq(4).text();
@@ -277,14 +277,30 @@
 					method: "post",
 					data: JSON.stringify(listDeviceSave),
 					contentType: "application/json",
-					url: "http://localhost/smarthome/savedevice/"+$(".detailroomname").text()//falses
+					url: "http://localhost/smarthome/savedevice/"+$(".detailroomname").text() + "/" + $(".username").text()+ "/" + $(".thisroom").text()//falses
 				}).done(function(data, textStatus, xhr){
 					status_create = xhr.status;
 				}).fail(function(data, textStatus, xhr){
 					status_create = data.status;
 				});
+
+				if(status_create == 201){
+	    			alert("Save success")
+
+	    		}else if(status_create == 302){
+	    			alert("The Ip is exits, please use another Ip")
+	    		}
 				scheduleTempHumi($(".detailroomname").text());
 			}
+		})
+	}
+
+	function addDevice(){
+		$(".adddevice-btn").click(function(){
+			deviceSource.push({id: 0, ip: "0.0.0.0", nameDevice:"Humidity Device Name", state:"off"})
+			closeDetailRoom();
+			$(".content-gird").append('<div id="grid"></div>');
+			createTableDevice(deviceSource);
 		})
 	}
 

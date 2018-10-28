@@ -3,6 +3,8 @@ package com.sm.dao.impl;
 
 import java.util.List;
 
+import javax.persistence.Query;
+
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,9 +28,11 @@ public class DeviceDaoImpl implements DeviceDao {
 	}
 
 	@Override
-	public void deleteDevice(Device device) {
+	public void deleteDevice(int id) {
 		Session session = sessionFactory.getCurrentSession();
-		session.delete(device);
+		Query query = session.createQuery("DELETE FROM Device where id= :id");
+		query.setParameter("id", id);
+		query.executeUpdate();
 	}
 	
 }

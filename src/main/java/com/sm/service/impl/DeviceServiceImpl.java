@@ -1,5 +1,6 @@
 package com.sm.service.impl;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,15 +22,28 @@ public class DeviceServiceImpl implements DeviceService {
 	
 	@Override
 	@Transactional
-	public Boolean saveOrUpdate(List<Device> devices, Rooms room) {
+	public Boolean saveOrUpdate(List<Device> devices, List<Rooms> rooms) {
 		Boolean isexits = false;
-		List<Device> listdevice = room.getDevices();
-//		review here
-		for(Device device: devices) { 
-			if(device.getId() == 0) {
-				for(Device checkDevice: listdevice) {
-					if(device.getIp().equals(checkDevice.getIp())) 
-						isexits = true;
+		List<Device> listIpDeviceInDB = new ArrayList<Device>();
+		for(Rooms room : rooms ) {
+			List<Device> deviceInDB = room.getDevices();
+			if(deviceInDB != null && deviceInDB.size()>0) {
+				listIpDeviceInDB.addAll(deviceInDB);
+			}
+		}
+		
+		for(Device device:devices) {
+			if(listIpDeviceInDB != null && listIpDeviceInDB.size()>0) {
+				for(Device devicecheck: listIpDeviceInDB) {
+					if(device.getIp().equals(devicecheck.getIp())) {
+						if(device.getId() == 0) {
+							isexits = true;
+						}else {
+							deviceDao.saveOrUpdate(devices);
+							return true;
+						}
+						break;
+					}
 				}
 			}
 		}
@@ -42,8 +56,9 @@ public class DeviceServiceImpl implements DeviceService {
 	}
 
 	@Override
-	public void deleteDevice(Device device) {
-		deviceDao.deleteDevice(device);
+	@Transactional
+	public void deleteDevice(int id) {
+		deviceDao.deleteDevice(id);
 		
 	}
 

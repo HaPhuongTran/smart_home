@@ -83,5 +83,14 @@ public class Device {
 
 	public void setRoomId(Rooms roomId) {
 		this.roomId = roomId;
-	}	
+	}
+
+	public String getType() {
+		return type;
+	}
+
+	public void setType(String type) {
+		this.type = type;
+	}
+	
 }

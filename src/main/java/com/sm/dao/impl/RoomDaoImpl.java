@@ -32,17 +32,17 @@ public class RoomDaoImpl implements RoomDao {
 	@Override
 	public List<Rooms> getListRooms(String name_home) {
 		Session session = sessionFactory.getCurrentSession();
-		Query query = session.createQuery("FROM Rooms WHERE homeId = (SELECT id FROM HomeProject WHERE nameHome = :name)");
+		Query query = session.createQuery("FROM Rooms WHERE home = (SELECT id FROM HomeProject WHERE nameHome = :name)");
 		query.setParameter("name", name_home);
 		List<Rooms> room = (List<Rooms>) query.getResultList();
 		return room;
 	}
 	
 	@Override
-	public Rooms getRoom(String nameRoom) {
+	public Rooms getRoom(String namehome) {
 		Session session = sessionFactory.getCurrentSession();
-		Query query = session.createQuery("FROM Rooms WHERE nameRoom =:name");
-		query.setParameter("name", nameRoom);
+		Query query = session.createQuery("FROM Rooms WHERE home = (SELECT id FROM HomeProject WHERE nameHome = :name)");
+		query.setParameter("name", namehome);
 		Rooms room = (Rooms) query.getSingleResult();
 		return room;
 	}
