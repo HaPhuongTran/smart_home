@@ -251,7 +251,7 @@
 			$(".sui-table tbody tr").each(function(){
 				var id = $(this).find("td").eq(0).text();
 				var ip = $(this).find("td").eq(1).text();
-				validate(ip.substr(0, ip.length-1));
+				validate(ip);//review here
 				var namedevice = $(this).find("td").eq(2).text();
 				var state = $(this).find("td").eq(3).text();
 				var type = $(this).find("td").eq(4).text();
