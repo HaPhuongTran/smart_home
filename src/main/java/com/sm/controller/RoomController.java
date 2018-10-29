@@ -68,10 +68,17 @@ public class RoomController {
 	
 	@RequestMapping(value = "/deleteroom/{name_room}/{name_home}", method = RequestMethod.DELETE, headers="Accept=application/json")
 	public ResponseEntity<HttpStatus> deleteRoom(@PathVariable("name_room") String name_room, @PathVariable("name_home") String name_home){
-		Rooms room = roomService.getRoom(name_home);
-		List<Device> devices = room.getDevices();
+		List<Rooms> rooms = roomService.getListRooms(name_home);
+		Rooms roomDelete = new Rooms();
+		for(Rooms room : rooms) {
+			if(room.getNameRoom().equals(name_room)) {
+				roomDelete = room;
+				break;
+			}
+		}
+		List<Device> devices = roomDelete.getDevices();
 		if(devices.size()<=0) {
-			roomService.deleteRoom (room);
+			roomService.deleteRoom (roomDelete);
 			return new ResponseEntity<>(HttpStatus.OK);
 		}else {
 			return new ResponseEntity<>(HttpStatus.FOUND);

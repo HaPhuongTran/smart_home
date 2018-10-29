@@ -5,6 +5,7 @@
  	var countroom = 0, status_create, counthome = 0;
  	var temperture_humidity, deviceSource;
  	$(".createroom").load("model_createroom.html");
+ 	$(".sethumitemp").load("settemphumi.html");
  	var hasStorage = ("sessionStorage" in window && window.sessionStorage),
 		storageKey = "sessionUser",
     	now, expiration, dataStorage = false;
@@ -84,6 +85,7 @@
     			scheduleTempHumi(listroom[countroom].nameRoom);
 		    }
     		detailRoom(countroom);
+    		setHumiTempForRoom(countroom);
     		deleteRoom(countroom,listroom[countroom].nameRoom);
     	}
     }
@@ -122,6 +124,7 @@
 			var roomname = $('.roomname').val();
 			getInfoCreateRoom(saveRoom(roomname,countroom), roomname);
 			detailRoom(countroom);
+			setHumiTempForRoom(countroom);
 			deleteRoom(countroom,roomname);
 			countroom++;
 		})
@@ -249,6 +252,7 @@
 			var listDevice = [];
 			var listDeviceSave = [];
 			var checksameip = false;
+			var nameHome = $(".thisroom").text();
 			$(".sui-table tbody tr").each(function(){
 				var id = $(this).find("td").eq(0).text();
 				var ip = $(this).find("td").eq(1).text();
@@ -281,7 +285,7 @@
 					method: "post",
 					data: JSON.stringify(listDeviceSave),
 					contentType: "application/json",
-					url: "http://localhost/smarthome/savedevice/"+$(".detailroomname").text() + "/" + $(".username").text()+ "/" + $(".thisroom").text()//falses
+					url: "http://localhost/smarthome/savedevice/"+$(".detailroomname").text() + "/" + $(".username").text()+ "/" + nameHome//falses
 				}).done(function(data, textStatus, xhr){
 					status_create = xhr.status;
 				}).fail(function(data, textStatus, xhr){
@@ -290,9 +294,10 @@
 
 				if(status_create == 201){
 	    			alert("Save success")
-	    			for(var i = 0; i<homeinfo.rooms.length; i++){
-	    				if(homeinfo.rooms.nameRoom === $(".detailroomname").text()){
-	    					loadDevice(homeinfo.rooms.devices);
+	    			var home = getHome(nameHome);
+	    			for(var i = 0; i<home.rooms.length; i++){
+	    				if(home.rooms[i].nameRoom === $(".detailroomname").text()){
+	    					loadDevice(home.rooms[i].devices);
 	    					return;
 	    				}
 	    			}
@@ -306,8 +311,14 @@
 	}
 
 	function loadDevice(listDevice){
-		listDevice.each(function(){
-		})
+		var loadListDevice = [];
+		for(var i =0; i<listDevice.length; i++){
+			loadListDevice.push(listDevice[i]);
+
+			closeDetailRoom();
+			$(".content-gird").append('<div id="grid"></div>');
+			createTableDevice(loadListDevice);
+		}
 	}
 
 	function addDevice(){
@@ -317,6 +328,43 @@
 			$(".content-gird").append('<div id="grid"></div>');
 			createTableDevice(deviceSource);
 		})
+	}
+
+	function setHumiTempForRoom(roomcount){
+		$(".set-btn"+roomcount).click(function(){
+			setHumiAndTemp();
+		})
+	}
+
+	function setHumiAndTemp(){
+		$("#btn-up-humidityDevice, #btn-up-temperatureDevice").click(function(){
+			var typeDevice = $(this).attr("id");
+			if(typeDevice === "btn-up-humidityDevice"){
+				increaseOrDecreaseValue("setHumidity", 1);
+			}else{
+				increaseOrDecreaseValue("setTemperature", 1);
+			}
+		})
+
+		$("#btn-down-humidityDevice, #btn-down-temperatureDevice").click(function(){
+			var typeDevice = $(this).attr("id");
+			if(typeDevice === "btn-down-humidityDevice"){
+				increaseOrDecreaseValue("setHumidity", 0);
+			}else{
+				increaseOrDecreaseValue("setTemperature", 0);
+			}
+		})
+	}
+
+	function increaseOrDecreaseValue(checkHumiOrTemp, checkupdown){
+		var value = $("."+checkHumiOrTemp).val();
+		if(checkupdown === 1){
+			value++;
+		}
+		else if (value >1){
+			value--;
+		}
+		$("."+checkHumiOrTemp).val(value);
 	}
 
 	function appendRoom(roomcount, roomname){
@@ -356,6 +404,7 @@
 								+'</table>'
 							+'</div>'
 							+'<button type="button" data-toggle="modal" data-target="#modaldetailroom" class="btn btn-default detail-btn'+roomcount+'">Detail</button>'
+							+'<button type="button" data-toggle="modal" data-target="#sethumitemp" class="btn btn-default set-btn'+roomcount+'">Set</button>'
 						+'</div>'
 					+'</div>'
 				+'</div>'
