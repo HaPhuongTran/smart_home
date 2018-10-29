@@ -25,8 +25,8 @@ public class HomeServiceImpl implements HomeService {
 	}
 	
 	@Override
-	public HomeProject getHome(String nameHome) {
-		return homeDao.getHome(nameHome);
+	public HomeProject getHome(String nameHome, String userName) {
+		return homeDao.getHome(nameHome, userName);
 	}
 
 	@Override

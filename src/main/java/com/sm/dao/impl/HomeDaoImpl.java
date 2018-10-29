@@ -24,10 +24,11 @@ public class HomeDaoImpl implements HomeDao {
 	}
 	
 	@Override
-	public HomeProject getHome(String nameHome) {
+	public HomeProject getHome(String nameHome, String userName) {
 		Session session = sessionFactory.getCurrentSession();
-		Query query = session.createQuery("FROM HomeProject WHERE nameHome =:name");
+		Query query = session.createQuery("FROM HomeProject WHERE nameHome =:name and account = (SELECT id FROM Account WHERE userName = :username)");
 		query.setParameter("name", nameHome);
+		query.setParameter("username", userName);
 		HomeProject home = null;
 		try{
 			home = (HomeProject) query.getSingleResult();

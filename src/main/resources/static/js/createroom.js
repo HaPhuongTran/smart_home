@@ -67,7 +67,7 @@
 		async : false,
 		method: "get",
 		contentType: "application/json",
-		url: "http://localhost/smarthome/gethome/"+homename
+		url: "http://localhost/smarthome/gethome/"+homename+"/"+$(".username").text()
 		}).done(function(data, textStatus, xhr){
 			homeinfo = data;
 		});
@@ -134,7 +134,7 @@
 			method: "post",
 			data: JSON.stringify({ nameRoom:roomname }),
 			contentType: "application/json",
-			url: "http://localhost/smarthome/createroom/"+$('.thisroom').text()
+			url: "http://localhost/smarthome/createroom/"+$('.thisroom').text()+"/"+$(".username").text()
 		}).done(function(data, textStatus, xhr){
 			status_create = xhr.status;
 		}).fail(function(data, textStatus, xhr){
@@ -238,9 +238,10 @@
 		$("#grid").remove();
 	}
 
-	function validate( value ) {//check here
-	    var ipRE = new RegExp( '^\d+\.\d+\.\d+\.\d+$' );
-	    alert(ipRE.test( value ));
+	function validate( ipaddress ) {//check here
+	    if (/^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/.test(ipaddress)) {  
+		    return (true)  
+		}else return false;
 	}
 
 	function listenSaveDevice(){
@@ -251,7 +252,6 @@
 			$(".sui-table tbody tr").each(function(){
 				var id = $(this).find("td").eq(0).text();
 				var ip = $(this).find("td").eq(1).text();
-				validate(ip);//review here
 				var namedevice = $(this).find("td").eq(2).text();
 				var state = $(this).find("td").eq(3).text();
 				var type = $(this).find("td").eq(4).text();
@@ -260,6 +260,10 @@
 			})
 			for( var i =1; i<=listDevice.length - 1; i++){
 				if(listDevice[i].ip != "0.0.0.0" && listDevice[i].ip.length>0){
+					if(!validate(listDevice[i].ip)){
+					alert("IP is not invalid, please try another IP!")
+						return;
+					}
 					for (var j = i+1; j < listDevice.length; j++) {
 						if(listDevice[i].ip === listDevice[j].ip){
 							checksameip = true;
@@ -286,12 +290,23 @@
 
 				if(status_create == 201){
 	    			alert("Save success")
+	    			for(var i = 0; i<homeinfo.rooms.length; i++){
+	    				if(homeinfo.rooms.nameRoom === $(".detailroomname").text()){
+	    					loadDevice(homeinfo.rooms.devices);
+	    					return;
+	    				}
+	    			}
 
 	    		}else if(status_create == 302){
 	    			alert("The Ip is exits, please use another Ip")
 	    		}
 				scheduleTempHumi($(".detailroomname").text());
 			}
+		})
+	}
+
+	function loadDevice(listDevice){
+		listDevice.each(function(){
 		})
 	}
 

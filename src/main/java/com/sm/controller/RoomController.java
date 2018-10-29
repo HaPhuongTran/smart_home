@@ -1,6 +1,5 @@
 package com.sm.controller;
 
-import java.util.ArrayList;
 import java.util.List;
 
 
@@ -38,10 +37,10 @@ public class RoomController {
         return room;
 	}
 	
-	@RequestMapping(value = "/createroom/{name_home}", method = RequestMethod.POST, headers="Accept=application/json")
-	public ResponseEntity<HttpStatus> createRooms(@RequestBody Rooms room, @PathVariable("name_home") String name_home){
+	@RequestMapping(value = "/createroom/{name_home}/{userName}", method = RequestMethod.POST, headers="Accept=application/json")
+	public ResponseEntity<HttpStatus> createRooms(@RequestBody Rooms room, @PathVariable("name_home") String name_home, @PathVariable("userName") String userName){
 		Boolean isexits = false;
-		HomeProject home = homeService.getHome(name_home);
+		HomeProject home = homeService.getHome(name_home, userName);
 		if(home!=null) {
 			room.setHome(home);
 			List<Rooms> listrooms = home.getRooms();

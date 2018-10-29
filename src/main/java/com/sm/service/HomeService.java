@@ -4,6 +4,6 @@ import com.sm.entity.HomeProject;
 
 public interface HomeService {
 	public void createHome(HomeProject homeProject);
-	public HomeProject getHome(String nameHome);
+	public HomeProject getHome(String nameHome, String userName);
 	public void DeleteHome(int idHome);
 }

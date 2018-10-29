@@ -48,9 +48,9 @@ public class HomeController {
 		}
 	}
 	
-	@RequestMapping(value = "/gethome/{name_home}", method = RequestMethod.GET, headers="Accept=application/json")
-	public HomeProject getHomeByName(@PathVariable("name_home") String name_home){
-		HomeProject home =homeService.getHome(name_home);
+	@RequestMapping(value = "/gethome/{name_home}/{user_name}", method = RequestMethod.GET, headers="Accept=application/json")
+	public HomeProject getHomeByName(@PathVariable("name_home") String name_home, @PathVariable("user_name") String user_name){
+		HomeProject home =homeService.getHome(name_home, user_name);
         return home;
 	}
 	
