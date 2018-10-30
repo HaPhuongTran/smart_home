@@ -13,6 +13,7 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -35,10 +36,21 @@ public class Rooms{
 	@OneToMany(mappedBy = "roomId", fetch = FetchType.EAGER)
 	private List<Device> devices;
 	
+	@OneToOne(mappedBy = "roomIdtemphumi", fetch = FetchType.EAGER)
+	private HumiTempUser humitemp;
+	
 	public Rooms() {}
 	
 	public Rooms(int id) {
 		this.id = id;
+	}
+
+	public HumiTempUser getHumitemp() {
+		return humitemp;
+	}
+
+	public void setHumitemp(HumiTempUser humitemp) {
+		this.humitemp = humitemp;
 	}
 
 	public int getId() {

@@ -45,7 +45,6 @@ function createTableDevice(datasource){
                             $.ajax({
                                 async : false,
                                 method: "delete",
-                                // data: JSON.stringify({id: item.id}),
                                 contentType: "application/json",
                                 url: "http://localhost/smarthome/deletedevice/"+item.id
                             }).done(function(data, textStatus, xhr){

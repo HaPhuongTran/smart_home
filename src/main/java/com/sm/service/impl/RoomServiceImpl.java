@@ -37,8 +37,8 @@ public class RoomServiceImpl implements RoomService {
 	}
 	
 	@Override
-	public Rooms getRoom(String nameRoom) {
-		return roomDao.getRoom(nameRoom);
+	public Rooms getRoom(String nameRoom, String nameHome) {
+		return roomDao.getRoom(nameRoom, nameHome);
 	}
 
 	@Override

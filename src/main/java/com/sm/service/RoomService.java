@@ -11,7 +11,7 @@ public interface RoomService {
 	
 	public List<Rooms> getListRooms(String name_home);
 	
-	public Rooms getRoom(String nameRoom);
+	public Rooms getRoom(String nameRoom, String nameHome);
 	
 	public void saveOrUpdate(Rooms room);
 	

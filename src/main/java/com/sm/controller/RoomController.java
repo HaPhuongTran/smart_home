@@ -15,9 +15,11 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.sm.entity.Device;
 import com.sm.entity.HomeProject;
+import com.sm.entity.HumiTempUser;
 import com.sm.entity.Rooms;
 import com.sm.service.HomeService;
 import com.sm.service.RoomService;
+import com.sm.service.UserHumiTempService;
 
 @RestController
 @CrossOrigin
@@ -30,10 +32,13 @@ public class RoomController {
 	@Autowired
 	HomeService homeService;
 	
+	@Autowired
+	UserHumiTempService userHumiTempService;
 	
-	@RequestMapping(value = "/getroom/{name_room}", method = RequestMethod.GET, headers="Accept=application/json")
-	public Rooms getRoomByName(@PathVariable("name_room") String name_room){
-		Rooms room =roomService.getRoom(name_room);
+	
+	@RequestMapping(value = "/getroom/{name_room}/{namehome}", method = RequestMethod.GET, headers="Accept=application/json")
+	public Rooms getRoomByName(@PathVariable("name_room") String name_room, @PathVariable("namehome") String namehome){
+		Rooms room =roomService.getRoom(name_room, namehome);
         return room;
 	}
 	
@@ -68,17 +73,17 @@ public class RoomController {
 	
 	@RequestMapping(value = "/deleteroom/{name_room}/{name_home}", method = RequestMethod.DELETE, headers="Accept=application/json")
 	public ResponseEntity<HttpStatus> deleteRoom(@PathVariable("name_room") String name_room, @PathVariable("name_home") String name_home){
-		List<Rooms> rooms = roomService.getListRooms(name_home);
-		Rooms roomDelete = new Rooms();
-		for(Rooms room : rooms) {
-			if(room.getNameRoom().equals(name_room)) {
-				roomDelete = room;
-				break;
+		Rooms rooms = roomService.getRoom(name_room, name_home);
+		try {
+			HumiTempUser humiTempUser = rooms.getHumitemp();
+			if(humiTempUser != null) {
+				userHumiTempService.deleteHumiTempUser(humiTempUser);
 			}
-		}
-		List<Device> devices = roomDelete.getDevices();
+		}catch(NullPointerException e) {}
+		
+		List<Device> devices = rooms.getDevices();
 		if(devices.size()<=0) {
-			roomService.deleteRoom (roomDelete);
+			roomService.deleteRoom (rooms);
 			return new ResponseEntity<>(HttpStatus.OK);
 		}else {
 			return new ResponseEntity<>(HttpStatus.FOUND);

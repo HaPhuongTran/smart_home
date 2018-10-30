@@ -11,7 +11,9 @@ public interface RoomDao {
 	
 	public void updateRoom(Rooms room);
 	
-	public Rooms getRoom(String nameRoom);
+//	public Rooms getRoom(String nameRoom);
+	
+	public Rooms getRoom(String nameRoom, String nameHome);
 	
 	public void saveOrUpdate(Rooms room);
 	
