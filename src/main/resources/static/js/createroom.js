@@ -15,6 +15,7 @@
     addHomeToList(getUser(getUserName).home, counthome);
     loadRoomOfHome(getHome(getHomeName).rooms);
     addRoom();
+    setvalue();
 
     for(var count =0; count<=counthome; count++){
     	swichHome(count);
@@ -39,7 +40,7 @@
 	            	getHomeName = dataStorage.userData.homename;
 	            	getUserName = dataStorage.userData.username;
 	            	$(".username").html(dataStorage.userData.username);
-	            	$(".thisroom").html(dataStorage.userData.homename);
+	            	$(".thishome").html(dataStorage.userData.homename);
 	            }
 	    	}
     	}
@@ -58,7 +59,7 @@
     	$(".listhome"+homecount).click(function(){
     		countroom = 0;
     		$(".room-contain").remove();
-    		$(".thisroom").text($(this).text());
+    		$(".thishome").text($(this).text());
     		loadRoomOfHome(getHome($(this).text()).rooms);
     	})
 	}
@@ -97,8 +98,9 @@
 	    	setHumidityOut(counttag);
 	    	setTemperatureIn(counttag);
 	    	setHumidityIn(counttag);
-	    	}, 30000);
+	    	}, 5000);
     }
+
 
     function getUser(username){
 		$.ajax({
@@ -137,7 +139,7 @@
 			method: "post",
 			data: JSON.stringify({ nameRoom:roomname }),
 			contentType: "application/json",
-			url: "http://localhost/smarthome/createroom/"+$('.thisroom').text()+"/"+$(".username").text()
+			url: "http://localhost/smarthome/createroom/"+$('.thishome').text()+"/"+$(".username").text()
 		}).done(function(data, textStatus, xhr){
 			status_create = xhr.status;
 		}).fail(function(data, textStatus, xhr){
@@ -162,7 +164,7 @@
 			method: "delete",
 			data: JSON.stringify({ nameRoom:nameroom }),
 			contentType: "application/json",
-			url: "http://localhost/smarthome/deleteroom/"+nameroom+"/"+$(".thisroom").text()
+			url: "http://localhost/smarthome/deleteroom/"+nameroom+"/"+$(".thishome").text()
 			}).done(function(data, textStatus, xhr){
 				status_create = xhr.status;
 			}).fail(function(data, textStatus, xhr){
@@ -188,26 +190,51 @@
 		});
 	}
 
-	function setTemperatureOut(temp){
-			$(".tempertaureOut"+temp).html(temperture_humidity[0].temperature);
+	function setTemperatureOut(tagset){
+		$(".tempertaureOut"+tagset).html(temperture_humidity[0].temperature);
 	}
 
-	function setHumidityOut(temp){
-			$(".humidityOut"+temp).html(temperture_humidity[1].humidity);
+	function setHumidityOut(tagset){
+		$(".humidityOut"+tagset).html(temperture_humidity[1].humidity);
 	}
 
-	function setTemperatureIn(temp){
-			$(".tempertaureIn"+temp).html(Math.floor(Math.random()*100)-50);
+	function setTemperatureIn(tagset){
+		$(".tempertaureIn"+tagset).html(Math.floor(Math.random()*100)-50);
 	}
 
-	function setHumidityIn(temp){
-			$(".humidityIn"+temp).html(Math.floor(Math.random()*100)-50);
+	function getTemperatureIn(tagset){
+		return $(".tempertaureIn"+tagset).text();
 	}
 
-	function detailRoom(roomcount){//review here
+	function setHumidityIn(tagset){
+		$(".humidityIn"+tagset).html(Math.floor(Math.random()*100)-50);
+	}
+
+
+	function getHumidityIn(tagset){
+		return $(".humidityIn"+tagset).text();
+	}
+
+	function setHumidityUser(tagset){
+		$(".humidityUser"+tagset).text($(".setHumidity").val());
+	}
+
+	function getHumidityUser(tagset){
+		return $(".humidityUser"+tagset).text();;
+	}
+
+	function setTemperatureUser(tagset){
+		$(".tempertaureUser"+tagset).text($(".setTemperature").val());
+	}
+
+	function getTemperatureUser(tagset){
+		return $(".tempertaureUser"+tagset).text();
+	}
+
+	function detailRoom(roomcount){
 		$(".detail-btn"+roomcount).click(function(){
 			$(".content-gird").append('<div id="grid"></div>');
-			var listroom = getHome($(".thisroom").text()).rooms;
+			var listroom = getHome($(".thishome").text()).rooms;
 			var thisroom;
 			for(var list = 0; list<listroom.length; list++){
 				if($(".nameroom"+roomcount).text() === listroom[list].nameRoom){
@@ -241,7 +268,7 @@
 		$("#grid").remove();
 	}
 
-	function validate( ipaddress ) {//check here
+	function validate( ipaddress ) {
 	    if (/^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/.test(ipaddress)) {  
 		    return (true)  
 		}else return false;
@@ -252,7 +279,7 @@
 			var listDevice = [];
 			var listDeviceSave = [];
 			var checksameip = false;
-			var nameHome = $(".thisroom").text();
+			var nameHome = $(".thishome").text();
 			$(".sui-table tbody tr").each(function(){
 				var id = $(this).find("td").eq(0).text();
 				var ip = $(this).find("td").eq(1).text();
@@ -297,7 +324,8 @@
 	    			var home = getHome(nameHome);
 	    			for(var i = 0; i<home.rooms.length; i++){
 	    				if(home.rooms[i].nameRoom === $(".detailroomname").text()){
-	    					loadDevice(home.rooms[i].devices);
+	    					deviceSource = home.rooms[i].devices;
+	    					loadDevice(deviceSource);
 	    					return;
 	    				}
 	    			}
@@ -311,19 +339,18 @@
 	}
 
 	function loadDevice(listDevice){
-		var loadListDevice = [];
-		for(var i =0; i<listDevice.length; i++){
-			loadListDevice.push(listDevice[i]);
+		// var loadListDevice = [];
+		// for(var i =0; i<listDevice.length; i++){
+		// 	loadListDevice.push(listDevice[i]);
 
 			closeDetailRoom();
 			$(".content-gird").append('<div id="grid"></div>');
-			createTableDevice(loadListDevice);
-		}
+			createTableDevice(listDevice);
 	}
 
 	function addDevice(){
 		$(".adddevice-btn").click(function(){
-			deviceSource.push({id: 0, ip: "0.0.0.0", nameDevice:"Humidity Device Name", state:"off"})
+			deviceSource.push({id: 0, ip: "0.0.0.0", nameDevice:"Device Name", state:"off"})
 			closeDetailRoom();
 			$(".content-gird").append('<div id="grid"></div>');
 			createTableDevice(deviceSource);
@@ -332,6 +359,7 @@
 
 	function setHumiTempForRoom(roomcount){
 		$(".set-btn"+roomcount).click(function(){
+			$(".roomNameSet").text($(".nameroom"+roomcount).text());
 			setHumiAndTemp();
 		})
 	}
@@ -367,6 +395,44 @@
 		$("."+checkHumiOrTemp).val(value);
 	}
 
+	function setvalue(){
+		var listRoom = getHome($(".thishome").text()).rooms;
+		for(var indexroom  = 0; indexroom<listRoom.length; indexroom++){
+			var humi = JSON.parse(localStorage.getItem("humi"+listRoom[indexroom].nameRoom+""));
+			var temp = JSON.parse(localStorage.getItem("temp"+listRoom[indexroom].nameRoom+""));
+			$(".tempertaureUser"+temp.room).text(temp.temp);
+			$(".humidityUser"+humi.room).text(humi.humi);
+			compareValue(listRoom[indexroom].nameRoom);
+		}
+		$(".btn-ok").click(function(){
+			var tagset = $(".roomNameSet").text();
+			setHumidityUser(tagset);
+			setTemperatureUser(tagset);
+			localStorage.setItem("humi"+tagset+"",JSON.stringify({ room :tagset, humi : getHumidityUser(tagset)}));
+			localStorage.setItem("temp"+tagset+"", JSON.stringify({ room :tagset, temp : getTemperatureUser(tagset)}));
+		})
+	}
+
+	function compareValue(tagset){
+		setInterval(function(){
+			if(parseInt(getTemperatureIn(tagset)) > parseInt(getTemperatureUser(tagset))){
+				var listRoom = homeinfo.rooms;
+				for(var i =0; i<listRoom.length; i++){
+					if(listRoom[i].nameRoom === tagset){
+						deviceSource = listRoom[i].devices;
+						for(var device in deviceSource){
+							if(device.type === "Air-Conditioner"){
+								device.state = "on";
+							}
+						}
+					}
+				}
+			}if(getHumidityIn(tagset) !=getHumidityUser(tagset)){
+
+			}
+		}, 5000)
+	}
+
 	function appendRoom(roomcount, roomname){
 		$(".row").append(
 			 '<div class="col-sm-4 room-contain room'+roomcount+'">'
@@ -381,24 +447,27 @@
 							+'<h5 class="pink-text"><i class="fa fa-pie-chart"></i> Report</h5>'
 							+'<h3 class="card-title pt-2 nameroom'+roomcount+'">'+roomname+'</h3>'
 							+'<div>'
-								+'<table class="table">'
+								+'<table class="table view-table">'
 									+'<thead>'
 										+'<tr>'
 											+'<th scope="col">#</th>'
-											+'<th scope="col">InSide</th>'
-											+'<th scope="col">OutSide</th>'
+											+'<th scope="col">In</th>'
+											+'<th scope="col">Out</th>'
+											+'<th scope="col">User</th>'
 										+'</tr>'
 									+'</thead>'
 									+'<tbody>'
-										+'<tr>'
+										+'<tr class = "temp">'
 											+'<td>Temperature(°C)</td>'
 											+'<td class="tempertaureIn'+roomname+'"></td>'
 											+'<td class="tempertaureOut'+roomname+'"></td>'
+											+'<td class="tempertaureUser'+roomname+'"></td>'
 										+'</tr>'
 										+'<tr>'
 											+'<td>Humidity(&#37;)</td>'
 											+'<td class = "humidityIn'+roomname+'"></td>'
 											+'<td class = "humidityOut'+roomname+'"></td>'
+											+'<td class = "humidityUser'+roomname+'"></td>'
 										+'</tr>'
 									+'</tbody>'
 								+'</table>'
