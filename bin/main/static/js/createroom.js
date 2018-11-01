@@ -301,7 +301,7 @@
 					method: "post",
 					data: JSON.stringify(listDeviceSave),
 					contentType: "application/json",
-					url: "http://localhost/smarthome/savedevice/"+$(".detailroomname").text() + "/" + $(".username").text()+ "/" + nameHome//falses
+					url: "http://localhost/smarthome/savedevice/"+$(".detailroomname").text() + "/" + $(".username").text()+ "/" + nameHome
 				}).done(function(data, textStatus, xhr){
 					status_create = xhr.status;
 				}).fail(function(data, textStatus, xhr){
@@ -328,13 +328,9 @@
 	}
 
 	function loadDevice(listDevice){
-		// var loadListDevice = [];
-		// for(var i =0; i<listDevice.length; i++){
-		// 	loadListDevice.push(listDevice[i]);
-
-			closeDetailRoom();
-			$(".content-gird").append('<div id="grid"></div>');
-			createTableDevice(listDevice);
+		closeDetailRoom();
+		$(".content-gird").append('<div id="grid"></div>');
+		createTableDevice(listDevice);
 	}
 
 	function addDevice(){
@@ -347,20 +343,23 @@
 	}
 
 	function setHumiTempForRoom(roomcount){
-		var HumiTempInRoom = getRoom(roomcount);
-		$(".tempertaureUser"+$(".nameroom"+roomcount).text()).text(HumiTempInRoom.humitemp.temp);
-		$(".humidityUser"+$(".nameroom"+roomcount).text()).text(HumiTempInRoom.humitemp.humi)
+		var Room = getRoom(roomcount);
+		if(Room.humitemp != null){
+			$(".tempertaureUser"+$(".nameroom"+roomcount).text()).text(Room.humitemp.temp);
+			$(".humidityUser"+$(".nameroom"+roomcount).text()).text(Room.humitemp.humi)
+		}
 		$(".set-btn"+roomcount).click(function(){
 			$(".roomNameSet").text($(".nameroom"+roomcount).text());
 			setHumiAndTemp();
-			if(HumiTempInRoom != null && HumiTempInRoom != ""){
-				$(".idHumiTemp").val(HumiTempInRoom.humitemp.id);
-				$(".setHumidity").val(HumiTempInRoom.humitemp.humi);
-				$(".setTemperature").val(HumiTempInRoom.humitemp.temp);
+			if(Room.humitemp != null && Room.humitemp != ""){
+				$(".idHumiTemp").val(Room.humitemp.humitemp.id);
+				$(".setHumidity").val(Room.humitemp.humitemp.humi);
+				$(".setTemperature").val(Room.humitemp.humitemp.temp);
 			}
 		})
 
 		if($(".tempertaureUser"+$(".nameroom"+roomcount).text()).text() != 0){
+			$("#grid").remove();
 			setInterval(function(){
 				compareValue($(".nameroom"+roomcount).text());
 			},5000);
@@ -412,14 +411,6 @@
 	}
 
 	function setvalue(){
-		// var listRoom = getHome($(".thishome").text()).rooms;
-		// for(var indexroom  = 0; indexroom<listRoom.length; indexroom++){
-		// 	var humi = JSON.parse(localStorage.getItem("humi"+listRoom[indexroom].nameRoom+""));
-		// 	var temp = JSON.parse(localStorage.getItem("temp"+listRoom[indexroom].nameRoom+""));
-		// 	$(".tempertaureUser"+temp.room).text(temp.temp);
-		// 	$(".humidityUser"+humi.room).text(humi.humi);
-		// 	compareValue(listRoom[indexroom].nameRoom);
-		// }
 		$(".btn-ok").click(function(){
 			var tagset = $(".roomNameSet").text();
 			setHumidityUser(tagset);
@@ -436,30 +427,41 @@
 				status_create = data.status;
 			});
 
-			// localStorage.setItem("humi"+tagset+"",JSON.stringify({ room :tagset, humi : getHumidityUser(tagset)}));
-			// localStorage.setItem("temp"+tagset+"", JSON.stringify({ room :tagset, temp : getTemperatureUser(tagset)}));
 		})
 	}
 
-	function compareValue(tagset){
-		
-		if(parseInt(getTemperatureIn(tagset)) > parseInt(getTemperatureUser(tagset))){
-			var listRoom = homeinfo.rooms;
-			for(var i =0; i<listRoom.length; i++){
-				if(listRoom[i].nameRoom === tagset){
-					deviceSource = listRoom[i].devices;
-					for(var indexdevice = 0; indexdevice< deviceSource.length; indexdevice++){
-						if(deviceSource[indexdevice].type === "Air-Conditioner"){
-							deviceSource[indexdevice].state = "on";
-						}
-					}
-					closeDetailRoom();
-					$(".content-gird").append('<div id="grid"></div>');
-					createTableDevice(deviceSource);
-				}
+	function changeValue(typeDevice, state, tagset){
+		var listRoom = homeinfo.rooms;
+		var isDeviceExits = false;
+		for(var i =0; i<listRoom.length; i++){
+			if(listRoom[i].nameRoom === tagset){
+				deviceSourceschel = listRoom[i].devices;
+				$("#grid").remove();
+				$(".content-gird").append('<div id="grid"></div>');
+				createTableDevice(deviceSource);
+				break;
 			}
-		}if(getHumidityIn(tagset) !=getHumidityUser(tagset)){
+		}
+		$(".sui-table tbody tr").each(function(){
+			var type = $(this).find("td").eq(4).text();
+			if(type === typeDevice){
+				$(this).find("td").eq(3).text(state);
+				//use toast here
+			}
+		})
+		//use toast here
+	}
+	function compareValue(tagset){
+		if(parseInt(getTemperatureIn(tagset)) > parseInt(getTemperatureUser(tagset))){
+			changeValue("Air-Conditioner", "on", tagset);
+			changeValue("Heating Equipment", "off", tagset);
 
+		}else{
+			changeValue("Air-Conditioner", "off", tagset);
+			changeValue("Heating Equipment", "on", tagset);
+		}
+		if(parseInt(getHumidityIn(tagset)) > parseInt(getHumidityUser(tagset))){
+			changeValue("Dehumidifier", "on", tagset);
 		}
 	}
 

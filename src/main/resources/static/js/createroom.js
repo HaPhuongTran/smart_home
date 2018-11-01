@@ -343,20 +343,23 @@
 	}
 
 	function setHumiTempForRoom(roomcount){
-		var HumiTempInRoom = getRoom(roomcount);
-		$(".tempertaureUser"+$(".nameroom"+roomcount).text()).text(HumiTempInRoom.humitemp.temp);
-		$(".humidityUser"+$(".nameroom"+roomcount).text()).text(HumiTempInRoom.humitemp.humi)
+		var Room = getRoom(roomcount);
+		if(Room.humitemp != null){
+			$(".tempertaureUser"+$(".nameroom"+roomcount).text()).text(Room.humitemp.temp);
+			$(".humidityUser"+$(".nameroom"+roomcount).text()).text(Room.humitemp.humi)
+		}
 		$(".set-btn"+roomcount).click(function(){
 			$(".roomNameSet").text($(".nameroom"+roomcount).text());
 			setHumiAndTemp();
-			if(HumiTempInRoom != null && HumiTempInRoom != ""){
-				$(".idHumiTemp").val(HumiTempInRoom.humitemp.id);
-				$(".setHumidity").val(HumiTempInRoom.humitemp.humi);
-				$(".setTemperature").val(HumiTempInRoom.humitemp.temp);
+			if(Room.humitemp != null && Room.humitemp != ""){
+				$(".idHumiTemp").val(Room.humitemp.humitemp.id);
+				$(".setHumidity").val(Room.humitemp.humitemp.humi);
+				$(".setTemperature").val(Room.humitemp.humitemp.temp);
 			}
 		})
 
 		if($(".tempertaureUser"+$(".nameroom"+roomcount).text()).text() != 0){
+			$("#grid").remove();
 			setInterval(function(){
 				compareValue($(".nameroom"+roomcount).text());
 			},5000);
@@ -427,24 +430,38 @@
 		})
 	}
 
+	function changeValue(typeDevice, state, tagset){
+		var listRoom = homeinfo.rooms;
+		var isDeviceExits = false;
+		for(var i =0; i<listRoom.length; i++){
+			if(listRoom[i].nameRoom === tagset){
+				deviceSourceschel = listRoom[i].devices;
+				$("#grid").remove();
+				$(".content-gird").append('<div id="grid"></div>');
+				createTableDevice(deviceSource);
+				break;
+			}
+		}
+		$(".sui-table tbody tr").each(function(){
+			var type = $(this).find("td").eq(4).text();
+			if(type === typeDevice){
+				$(this).find("td").eq(3).text(state);
+				//use toast here
+			}
+		})
+		//use toast here
+	}
 	function compareValue(tagset){
 		if(parseInt(getTemperatureIn(tagset)) > parseInt(getTemperatureUser(tagset))){
-			// get each element in table check device change value
+			changeValue("Air-Conditioner", "on", tagset);
+			changeValue("Heating Equipment", "off", tagset);
 
-
-			// var listRoom = homeinfo.rooms;
-			// for(var i =0; i<listRoom.length; i++){
-			// 	if(listRoom[i].nameRoom === tagset){
-			// 		deviceSource = listRoom[i].devices;
-			// 		for(var indexdevice = 0; indexdevice< deviceSource.length; indexdevice++){
-			// 			if(deviceSource[indexdevice].type === "Air-Conditioner"){
-			// 				deviceSource[indexdevice].state = "on";
-			// 			}
-			// 		}
-			// 	}
-			// }
-		}if(getHumidityIn(tagset) !=getHumidityUser(tagset)){
-
+		}else{
+			changeValue("Air-Conditioner", "off", tagset);
+			changeValue("Heating Equipment", "on", tagset);
+		}
+		if(parseInt(getHumidityIn(tagset)) > parseInt(getHumidityUser(tagset))){
+			changeValue("Dehumidifier", "on", tagset);
 		}
 	}
 
