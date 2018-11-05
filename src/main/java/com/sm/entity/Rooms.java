@@ -2,8 +2,8 @@ package com.sm.entity;
 
 
 import java.util.List;
+import java.util.Set;
 
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -34,10 +34,13 @@ public class Rooms{
 	private String nameRoom;
 	
 	@OneToMany(mappedBy = "roomId", fetch = FetchType.EAGER)
-	private List<Device> devices;
+	private Set<Device> devices;
 	
 	@OneToOne(mappedBy = "roomIdtemphumi", fetch = FetchType.EAGER)
 	private HumiTempUser humitemp;
+	
+	@OneToMany(mappedBy = "roomIdReport", fetch = FetchType.EAGER)
+	private Set<Report> reports;
 	
 	public Rooms() {}
 	
@@ -78,12 +81,21 @@ public class Rooms{
 		this.nameRoom = nameRoom;
 	}
 
-	public List<Device> getDevices() {
+	public Set<Device> getDevices() {
 		return devices;
 	}
 
-	public void setDevices(List<Device> devices) {
+	public void setDevices(Set<Device> devices) {
 		this.devices = devices;
 	}
+
+	public Set<Report> getReports() {
+		return reports;
+	}
+
+	public void setReports(Set<Report> reports) {
+		this.reports = reports;
+	}
+	
 
 }

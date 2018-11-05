@@ -77,3 +77,4 @@ $('<div id="dropdown"/>')
     value: !item["transport"] ? null : item["transport"].toString()
   }).swidget().focus();
 }
+

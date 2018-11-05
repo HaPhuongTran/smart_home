@@ -3,8 +3,9 @@
  	var userinfo, homeinfo;
  	var getHomeName, getUserName;
  	var countroom = 0, status_create, counthome = 0;
- 	var temperture_humidity, deviceSource;
- 	var roominfo;
+ 	var temperture_humidity, deviceSource, listIdInterval = [];
+ 	var roominfo, recortInfo;
+ 	$(".insideReportmodel").load("modal_report.html");
  	$(".createroom").load("model_createroom.html");
  	var hasStorage = ("sessionStorage" in window && window.sessionStorage),
 		storageKey = "sessionUser",
@@ -13,9 +14,10 @@
     listenSaveDevice();
 	addDevice();
     addHomeToList(getUser(getUserName).home, counthome);
+    
     loadRoomOfHome(getHome(getHomeName).rooms);
-    addRoom();
     setvalue();
+    addRoom();
 
     for(var count =0; count<=counthome; count++){
     	swichHome(count);
@@ -88,6 +90,7 @@
     		detailRoom(countroom);
     		setHumiTempForRoom(countroom);
     		deleteRoom(countroom,listroom[countroom].nameRoom);
+    		viewReport(countroom);
     	}
     }
 
@@ -98,10 +101,10 @@
 	    	setHumidityOut(counttag);
 	    	setTemperatureIn(counttag);
 	    	setHumidityIn(counttag);
-	    	}, 5000);
+	    	saveInfoToReport(counttag);
+	    	}, 15000);
     	return schedule;
     }
-
 
     function getUser(username){
 		$.ajax({
@@ -129,6 +132,7 @@
 			detailRoom(countroom);
 			setHumiTempForRoom(countroom);
 			deleteRoom(countroom,roomname);
+			viewReport(countroom);
 			countroom++;
 		})
 	}
@@ -191,7 +195,7 @@
 			temperture_humidity = JSON.parse(temperHumi);
 		});
 	}
-
+/////////////////////////////////////////////////////////////////////////////
 	function setTemperatureOut(tagset){
 		$(".tempertaureOut"+tagset).html(temperture_humidity[0].temperature);
 	}
@@ -199,9 +203,11 @@
 	function setHumidityOut(tagset){
 		$(".humidityOut"+tagset).html(temperture_humidity[1].humidity);
 	}
+/////////////////////////////////////////////////////////////////////////////
 
 	function setTemperatureIn(tagset){
-		$(".tempertaureIn"+tagset).html(Math.floor(Math.random()*100)-50);
+		var tempIn = Math.floor(Math.random()*7) + parseInt(temperture_humidity[0].temperature);
+		$(".tempertaureIn"+tagset).html(tempIn);
 	}
 
 	function getTemperatureIn(tagset){
@@ -209,14 +215,15 @@
 	}
 
 	function setHumidityIn(tagset){
-		$(".humidityIn"+tagset).html(Math.floor(Math.random()*100)-50);
+		var humiIn = Math.floor(Math.random()*7) + parseInt(temperture_humidity[1].humidity);
+		$(".humidityIn"+tagset).html(humiIn);
 	}
 
 
 	function getHumidityIn(tagset){
 		return $(".humidityIn"+tagset).text();
 	}
-
+//////////////////////////////////////////////////////////////////////////////////
 	function setHumidityUser(tagset){
 		$(".humidityUser"+tagset).text($(".setHumidity").val());
 	}
@@ -235,6 +242,7 @@
 
 	function detailRoom(roomcount){
 		$(".detail-btn"+roomcount).click(function(){
+			deviceSource = [];
 			$(".content-gird").append('<div id="grid"></div>');
 			var listroom = getHome($(".thishome").text()).rooms;
 			var thisroom;
@@ -251,6 +259,60 @@
 				closeDetailRoom();
 			})
 		})
+	}
+
+	function createChart(listDataTime, listTemp, listHumi){
+		var createChart = $("#reportChart").getContext('2d');
+		//
+		var chart = new Chart(createChart, {
+		    type: 'line',
+		    data: {
+		        labels:listDataTime,
+		        datasets: [{
+		            label: "Temp",
+		            backgroundColor: 'rgb(255, 99, 132)',
+		            borderColor: 'rgb(255, 99, 132)',
+		            data: listTemp
+		        },
+		        {
+		        	label: "Humi",
+		            backgroundColor: 'rgb(255, 99, 132)',
+		            borderColor: 'rgb(255, 99, 132)',
+		            data: listHumi
+		        }
+		        ]
+		    },
+		    options: {}
+		});
+	}
+
+	function viewReport(roomcount){
+		$(".report"+roomcount).click(function(){
+			var room = getRoom(roomcount);
+			var listrecordReport = room.reports;
+			var listDataTime = [], listTemp = [], listHumi = [];
+			for(var i =0; i<listrecordReport.length; i++){
+				listDataTime.push(listrecordReport[i].dateTime);
+				listTemp.push(listrecordReport[i].temp);
+				listHumi.push(listrecordReport[i].humi);
+			}
+			var table = $('#dtBasicExample').DataTable({
+				data: listrecordReport,
+				columns: [
+			        { data: 'dateTime'},
+			        { data: 'temp' },
+			        { data: 'humi' }
+			    ],
+			    destroy: true,
+			    "lengthMenu": [[5, 10, 25, 50, -1], [5, 10, 25, 50, "All"]]
+			});
+  			$('.dataTables_length').addClass('bs-select');
+  			createChart(listDataTime, listTemp, listHumi);
+		})
+
+		// $(".close-report").click(function(){
+		// 	table.destroy();
+		// })
 	}
 
 	function closeDetailRoom(){
@@ -335,7 +397,18 @@
 
 	function addDevice(){
 		$(".adddevice-btn").click(function(){
-			deviceSource.push({id: 0, ip: "0.0.0.0", nameDevice:"Device Name", state:"off"})
+			deviceSource = [];	
+			$(".sui-table tbody tr").each(function(){
+				var id = $(this).find("td").eq(0).text();
+				var ip = $(this).find("td").eq(1).text();
+				var namedevice = $(this).find("td").eq(2).text();
+				var state = $(this).find("td").eq(3).text();
+				var type = $(this).find("td").eq(4).text();
+				var temp = {id: id, ip:ip, nameDevice:namedevice, state:state, type:type};
+				if(id != ""){
+				deviceSource.push(temp);}
+			})
+			deviceSource.push({id: 0, ip: "0.0.0.0", nameDevice:"Device Name", state:"off"});
 			closeDetailRoom();
 			$(".content-gird").append('<div id="grid"></div>');
 			createTableDevice(deviceSource);
@@ -348,24 +421,61 @@
 			$(".tempertaureUser"+$(".nameroom"+roomcount).text()).text(Room.humitemp.temp);
 			$(".humidityUser"+$(".nameroom"+roomcount).text()).text(Room.humitemp.humi)
 		}
+		conditionComparevalue($(".nameroom"+roomcount).text());
 		$(".set-btn"+roomcount).click(function(){
+			var RoomAfter = getRoom(roomcount);
 			$(".roomNameSet").text($(".nameroom"+roomcount).text());
 			setHumiAndTemp();
-			if(Room.humitemp != null && Room.humitemp != ""){
-				$(".idHumiTemp").val(Room.humitemp.humitemp.id);
-				$(".setHumidity").val(Room.humitemp.humitemp.humi);
-				$(".setTemperature").val(Room.humitemp.humitemp.temp);
+			if(RoomAfter.humitemp != null && RoomAfter.humitemp != ""){
+				setValueForForm(Room.humitemp.id, RoomAfter.humitemp.humi, RoomAfter.humitemp.temp);
+			}else{
+				setValueForForm(0, 0, 0);
 			}
 		})
+	}
+	function saveInfoToReport(counttag){
+		var today = new Date();
+		var date = today.getFullYear()+'-'+(today.getMonth()+1)+'-'+today.getDate();
+		var time = today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
+		var dateTime = date+time;
+    	var temp = getTemperatureIn(counttag);
+    	var humi = getHumidityIn(counttag);
+    	$.ajax({
+	    	async : false,
+			method: "post",
+			data: JSON.stringify({ dateTime:dateTime, temp:temp, humi:humi}),
+			contentType: "application/json",
+			url: "http://localhost/smarthome/savereport/"+counttag+ "/" + $(".username").text()+ "/" + $(".thishome").text()
+		}).done(function(data, textStatus, xhr){
+			status_create = xhr.status;
+		}).fail(function(data, textStatus, xhr){
+			status_create = data.status;
+		});
 
-		if($(".tempertaureUser"+$(".nameroom"+roomcount).text()).text() != 0){
+    }
+	function setValueForForm(id, humi, temp){
+		$(".idHumiTemp").val(id);
+		$(".setHumidity").val(humi);
+		$(".setTemperature").val(temp);
+	}
+	function conditionComparevalue(roomName){
+		var tempUser = $(".tempertaureUser"+roomName).text();
+		if( tempUser != 0 && tempUser != "" ){
 			$("#grid").remove();
-			setInterval(function(){
-				compareValue($(".nameroom"+roomcount).text());
-			},5000);
+			var idsetInterval = setInterval(function(){
+				compareValue(roomName);
+			},15000);
+			listIdInterval.push({roomName:roomName, id:idsetInterval});
+		}else{
+			if(listIdInterval != undefined){
+				for(var i = 0; i<listIdInterval.length; i++){
+					if(listIdInterval[i].roomName === roomName);
+					clearInterval(listIdInterval[i].id);
+					listIdInterval.splice(this,1);
+				}
+			}
 		}
 	}
-
 	function getRoom(roomcount){
 		$.ajax({
 			async : false,
@@ -426,30 +536,47 @@
 			}).fail(function(data, textStatus, xhr){
 				status_create = data.status;
 			});
+			conditionComparevalue(tagset);
 
 		})
 	}
-
 	function changeValue(typeDevice, state, tagset){
-		var listRoom = homeinfo.rooms;
-		var isDeviceExits = false;
-		for(var i =0; i<listRoom.length; i++){
-			if(listRoom[i].nameRoom === tagset){
-				deviceSourceschel = listRoom[i].devices;
-				$("#grid").remove();
-				$(".content-gird").append('<div id="grid"></div>');
-				createTableDevice(deviceSource);
-				break;
-			}
-		}
-		$(".sui-table tbody tr").each(function(){
-			var type = $(this).find("td").eq(4).text();
-			if(type === typeDevice){
-				$(this).find("td").eq(3).text(state);
-				//use toast here
-			}
-		})
-		//use toast here
+		// var listRoom = homeinfo.rooms;
+		// var isDeviceExits = false;
+		// for(var i =0; i<listRoom.length; i++){
+		// 	if(listRoom[i].nameRoom === tagset){
+		// 		var deviceSourceschel = listRoom[i].devices;
+		// 		for(var j = 0; j<deviceSourceschel.length; j++){
+		// 			if(deviceSourceschel[j].type === typeDevice){
+		// 				$(".sui-table tbody tr").each(function(){
+		// 					var type = $(this).find("td").eq(4).text();
+		// 					if(type === typeDevice && $(".detailroomname").text()=== tagset){
+		// 						$(this).find("td").eq(3).text(state);
+		// 						return;
+		// 					}
+		// 				})
+		// 				showToastr(typeDevice + " of room " + tagset + " is " + state, "info");
+		// 				return;
+		// 			}
+		// 		}
+		// 		showToastr(tagset + " is not exits " + typeDevice, "warning");
+		// 		return;
+		// 	}
+		// }
+	}
+	function showToastr(message, typetoastr){
+		toastr.options = {
+              "closeButton": true,
+              "positionClass": "toast-bottom-right",
+              "onclick": null,
+              "timeOut": "2000",
+              "extendedTimeOut": "1000"
+            };
+        if(typetoastr === "warning"){
+        	toastr.warning(message);
+        }else{
+        	toastr.info(message);
+        }
 	}
 	function compareValue(tagset){
 		if(parseInt(getTemperatureIn(tagset)) > parseInt(getTemperatureUser(tagset))){
@@ -462,8 +589,14 @@
 		}
 		if(parseInt(getHumidityIn(tagset)) > parseInt(getHumidityUser(tagset))){
 			changeValue("Dehumidifier", "on", tagset);
+			changeValue("Nebulizer", "off", tagset);
+		}else{
+			changeValue("Dehumidifier", "off", tagset);
+			changeValue("Nebulizer", "on", tagset);
 		}
 	}
+
+
 
 	function appendRoom(roomcount, roomname){
 		$(".row").append(
@@ -476,7 +609,7 @@
 					+'</div>'
 					+'<div class="text-white text-center d-flex align-items-center rgba-black-strong py-5 px-4">'
 						+'<div class="contain-info">'
-							+'<h5 class="pink-text"><i class="fa fa-pie-chart"></i> Report</h5>'
+							+'<h5 class="pink-text" ><i class="fa fa-pie-chart"></i><a class = "report'+roomcount+'" data-toggle="modal" data-target="#modelreport">Report</a></h5>'
 							+'<h3 class="card-title pt-2 nameroom'+roomcount+'">'+roomname+'</h3>'
 							+'<div>'
 								+'<table class="table view-table">'

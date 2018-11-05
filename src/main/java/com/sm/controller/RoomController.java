@@ -1,7 +1,7 @@
 package com.sm.controller;
 
 import java.util.List;
-
+import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -81,7 +81,7 @@ public class RoomController {
 			}
 		}catch(NullPointerException e) {}
 		
-		List<Device> devices = rooms.getDevices();
+		Set<Device> devices = rooms.getDevices();
 		if(devices.size()<=0) {
 			roomService.deleteRoom (rooms);
 			return new ResponseEntity<>(HttpStatus.OK);

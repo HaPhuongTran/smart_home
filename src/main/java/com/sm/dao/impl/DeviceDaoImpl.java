@@ -2,6 +2,7 @@ package com.sm.dao.impl;
 
 
 import java.util.List;
+import java.util.Set;
 
 import javax.persistence.Query;
 
@@ -20,7 +21,7 @@ public class DeviceDaoImpl implements DeviceDao {
 	SessionFactory sessionFactory;
 
 	@Override
-	public void saveOrUpdate(List<Device> devices) {
+	public void saveOrUpdate(Set<Device> devices) {
 		Session session = sessionFactory.getCurrentSession();
 		for (Device device : devices) {
 			session.saveOrUpdate(device);

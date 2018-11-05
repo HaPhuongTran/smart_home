@@ -21,6 +21,11 @@
   <link rel="stylesheet" href="css/newroom.css">
   <!-- Font -->
   <link href="https://fonts.googleapis.com/css?family=Satisfy" rel="stylesheet">
+  <!-- toastr -->
+  <link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.min.css">
+  <!-- Data table -->
+  <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/bs4/dt-1.10.18/datatables.min.css"/>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.4.0/Chart.min.js"></script>
 </head>
 
 <body>
@@ -83,49 +88,53 @@
   </div>
 </div>
 <div class="modal fade top sethumitemp" id="sethumitemp" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-  
   <div class="modal-dialog" role="document">
-  <div class="modal-content">
-    <div class="modal-header choice-device">
-      <!-- <h4 class="modal-title" id="myModalLabel">Set Humidity/Temperature</h4> -->
-      <h4 class="modal-title roomNameSet" id="myModalLabel"></h4>
-      <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-        <span aria-hidden="true">&times;</span>
-      </button>
-    </div>
-
-    <div class="modal-body">
-      <div>
-        <input type="hidden" class="form-control idHumiTemp" value = "0">
+    <div class="modal-content">
+      <div class="modal-header choice-device">
+        <h4 class="modal-title roomNameSet" id="myModalLabel"></h4>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
       </div>
-      <label class="">Humidity</label><br>
-      <div class="md-form input-group">
-        <input type="text" class="form-control setHumidity" id="Humidity" value = "0">
-        <div class="input-group-append">
-          <button class="btn btn-info" id = "btn-up-humidityDevice" type="button">+</button>
-          <button class="btn btn-info" id = "btn-down-humidityDevice" type="button">-</button>
+
+      <div class="modal-body">
+        <div>
+          <input type="text" class="form-control idHumiTemp" value = "0">
+        </div>
+        <label class="">Humidity</label><br>
+        <div class="md-form input-group">
+          <input type="text" class="form-control setHumidity" id="Humidity" value = "0">
+          <div class="input-group-append">
+            <button class="btn btn-info" id = "btn-up-humidityDevice" type="button">+</button>
+            <button class="btn btn-info" id = "btn-down-humidityDevice" type="button">-</button>
+          </div>
+        </div>
+
+        <label class="">Temperature</label><br>
+        <div class="md-form input-group">
+          <input type="text" class="form-control setTemperature" id="Temperature" value = "0">
+          <div class="input-group-append">
+            <button class="btn btn-info" id = "btn-up-temperatureDevice" type="button">+</button>
+            <button class="btn btn-info" id = "btn-down-temperatureDevice" type="button">-</button>
+          </div>
         </div>
       </div>
 
-      <label class="">Temperature</label><br>
-      <div class="md-form input-group">
-        <input type="text" class="form-control setTemperature" id="Temperature" value = "0">
-        <div class="input-group-append">
-          <button class="btn btn-info" id = "btn-up-temperatureDevice" type="button">+</button>
-          <button class="btn btn-info" id = "btn-down-temperatureDevice" type="button">-</button>
-        </div>
+      <div class="modal-footer justify-content-center">
+        <button type="button" class="btn btn-primary btn-ok">OK</button>
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
       </div>
     </div>
-
-    <div class="modal-footer justify-content-center">
-      <button type="button" class="btn btn-primary btn-ok">OK</button>
-      <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-    </div>
-
   </div>
 </div>
-</div>
 
+<div class="modal fade top reportmodel" id="modelreport" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-backdrop = "static">
+  <div class="modal-dialog modal-full-height modal-top" role="document">
+    <div class="modal-content insideReportmodel">
+
+    </div>
+  </div>
+</div>
 
 <div class="container">
   <div class="row">
@@ -153,6 +162,13 @@
   <script type="text/javascript" src="http://www.prepbootstrap.com/Content/shieldui-lite/dist/js/shieldui-lite-all.min.js"></script>
   <!-- Gird javascript -->
   <script type="text/javascript" src="http://www.prepbootstrap.com/Content/data/shortGridData.js"></script>
+  <!-- toasrt -->
+   <script src="http://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.0.2/js/toastr.min.js">
+  </script>
+  <!-- Data Table -->
+  <script type="text/javascript" src="https://cdn.datatables.net/v/bs4/dt-1.10.18/datatables.min.js"></script>
+  <!-- chart js -->
+  <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.4.0/Chart.min.js"></script> -->
 </body>
 
 </html>

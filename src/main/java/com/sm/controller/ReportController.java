@@ -2,7 +2,6 @@ package com.sm.controller;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -17,31 +16,23 @@ import org.springframework.web.bind.annotation.RestController;
 import com.sm.entity.Account;
 import com.sm.entity.Device;
 import com.sm.entity.HomeProject;
+import com.sm.entity.Report;
 import com.sm.entity.Rooms;
 import com.sm.service.AccountService;
-import com.sm.service.DeviceService;
-import com.sm.service.HomeService;
-import com.sm.service.RoomService;
+import com.sm.service.ReportService;
 
 @RestController
 @CrossOrigin
 @RequestMapping("/smarthome")
-public class DeviceController {
+public class ReportController {
 	
 	@Autowired
-	DeviceService deviceService;
+	ReportService reportService;
 	
 	@Autowired
 	AccountService accountService;
-	
-	@Autowired
-	HomeService homeService;
-	
-	@Autowired
-	RoomService roomService;
-
-	@RequestMapping(value = "/savedevice/{room_name}/{user_name}/{home_name}", method = RequestMethod.POST)
-	public ResponseEntity<HttpStatus> createDevices( @RequestBody Set<Device> devices,@PathVariable("room_name") String room_name, @PathVariable("user_name") String user,  @PathVariable("home_name") String home){
+	@RequestMapping(value = "/savereport/{room_name}/{user_name}/{home_name}", method = RequestMethod.POST)
+	public ResponseEntity<HttpStatus> createDevices( @RequestBody Report report,@PathVariable("room_name") String room_name, @PathVariable("user_name") String user,  @PathVariable("home_name") String home){
 		Account account = accountService.getAccountByName(user);
 		List<HomeProject> homes = account.getHome();
 		List<Rooms> rooms = new ArrayList<Rooms>();
@@ -52,26 +43,11 @@ public class DeviceController {
 		}
 		for(Rooms room: rooms) {
 			if(room.getNameRoom().equals(room_name)) {
-				for(Device device : devices) {
-					device.setRoomId(room);
-				}
+				report.setRoomIdReport(room);
+				reportService.save(report);
 				break;
 			}
 		}
-		
-		if(deviceService.saveOrUpdate(devices, rooms)) {
-			return new ResponseEntity<>(HttpStatus.CREATED);
-		}else {
-			return new ResponseEntity<>(HttpStatus.FOUND);
-		}
-
-	}
-	
-	@RequestMapping(value = "/deletedevice/{id_device}", method = RequestMethod.DELETE)
-	public ResponseEntity<HttpStatus> deleteDevices( @PathVariable("id_device") int id_device){
-//		Rooms  room = roomService.getRoom(room_name);
-//		device.setRoomId(room);
-		deviceService.deleteDevice(id_device);
-		return new ResponseEntity<>(HttpStatus.OK);
+		return new ResponseEntity<>(HttpStatus.CREATED);
 	}
 }

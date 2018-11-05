@@ -1,7 +1,9 @@
 package com.sm.service.impl;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -22,11 +24,11 @@ public class DeviceServiceImpl implements DeviceService {
 	
 	@Override
 	@Transactional
-	public Boolean saveOrUpdate(List<Device> devices, List<Rooms> rooms) {
+	public Boolean saveOrUpdate(Set<Device> devices, List<Rooms> rooms) {
 		Boolean isexits = false;
-		List<Device> listIpDeviceInDB = new ArrayList<Device>();
+		Set<Device> listIpDeviceInDB = new HashSet<Device>();
 		for(Rooms room : rooms ) {
-			List<Device> deviceInDB = room.getDevices();
+			Set<Device> deviceInDB = room.getDevices();
 			if(deviceInDB != null && deviceInDB.size()>0) {
 				listIpDeviceInDB.addAll(deviceInDB);
 			}
