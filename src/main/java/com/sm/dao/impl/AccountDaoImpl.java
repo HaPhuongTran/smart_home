@@ -33,8 +33,7 @@ public class AccountDaoImpl implements AccountDao {
 		try{
 			account = (Account) query.getSingleResult();
 			}
-		catch (NoResultException nre){
-			}
+		catch (NoResultException nre){}
 		return account;
 		
 	}

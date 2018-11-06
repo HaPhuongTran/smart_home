@@ -4,6 +4,7 @@
  	var getHomeName, getUserName;
  	var countroom = 0, status_create, counthome = 0;
  	var temperture_humidity, deviceSource, listIdInterval = [];
+ 	var listIdIntervalSaveDevice = [];
  	var roominfo, recortInfo;
  	$(".insideReportmodel").load("modal_report.html");
  	$(".createroom").load("model_createroom.html");
@@ -82,15 +83,30 @@
     	if(listroom.length>0){
     		$(".wellcome").remove();
     	}
+    	var isTempDeviceExits = false;
+    	var isHumiDeviceExits = false;
     	for(countroom; countroom<listroom.length; countroom++){
     		appendRoom(countroom, listroom[countroom].nameRoom);
-    		if(listroom[countroom].devices.length>0){
-    			scheduleTempHumi(listroom[countroom].nameRoom);
+    		listDevice = listroom[countroom].devices;
+    		if(listDevice.length>0){
+    			for(var i = 0; i<listDevice.length; i++){
+    				if(listDevice[i].type === "Temperature Device"){
+    					isTempDeviceExits = true;
+    					continue;
+    				}
+    				if(listDevice[i].type === "Humidity Device" ){
+    					isHumiDeviceExits = true;
+    					continue;
+    				}
+    			}
 		    }
+		    checkExitsDevices(listroom[countroom].nameRoom, isTempDeviceExits, isHumiDeviceExits);
     		detailRoom(countroom);
     		setHumiTempForRoom(countroom);
     		deleteRoom(countroom,listroom[countroom].nameRoom);
     		viewReport(countroom);
+
+    		isTempDeviceExits = isHumiDeviceExits = false;
     	}
     }
 
@@ -104,6 +120,28 @@
 	    	saveInfoToReport(counttag);
 	    	}, 15000);
     	return schedule;
+    }
+
+    function scheduleTemp(counttag){
+		var scheduleTemp = setInterval(function(){
+			getTempatureHumidity();
+	    	setTemperatureOut(counttag);
+	    	setHumidityOut(counttag);
+	    	setTemperatureIn(counttag);
+	    	saveInfoToReport(counttag);
+	    }, 15000);
+	    return scheduleTemp;
+    }
+
+    function scheduleHumi(counttag){
+    	var scheduleHumi = setInterval(function(){
+    		getTempatureHumidity();
+	    	setTemperatureOut(counttag);
+	    	setHumidityOut(counttag);
+	    	setHumidityIn(counttag);
+	    	saveInfoToReport(counttag);
+	    }, 15000);
+	    return scheduleHumi;
     }
 
     function getUser(username){
@@ -262,7 +300,7 @@
 	}
 
 	function createChart(listDataTime, listTemp, listHumi){
-		var createChart = $("#reportChart").getContext('2d');
+		var createChart = document.getElementById("reportChart").getContext('2d');
 		//
 		var chart = new Chart(createChart, {
 		    type: 'line',
@@ -276,9 +314,10 @@
 		        },
 		        {
 		        	label: "Humi",
-		            backgroundColor: 'rgb(255, 99, 132)',
-		            borderColor: 'rgb(255, 99, 132)',
-		            data: listHumi
+		            backgroundColor: 'rgb(34, 99, 132)',
+		            borderColor: 'rgb(34, 99, 132)',
+		            data: listHumi,
+		            type: 'bar'
 		        }
 		        ]
 		    },
@@ -371,22 +410,45 @@
 				});
 
 				if(status_create == 201){
+					if(listIdIntervalSaveDevice != undefined && listIdIntervalSaveDevice.length>0){
+						for(var i = 0; i<listIdIntervalSaveDevice.length; i++){
+							if(listIdIntervalSaveDevice[i].nameroom === $(".detailroomname").text());
+							clearInterval(listIdIntervalSaveDevice[i].id);
+							listIdIntervalSaveDevice.splice(this,1);
+						}
+					}
+					var isTempDeviceExits = isHumiDeviceExits = false;
 	    			alert("Save success")
-	    			var home = getHome(nameHome);
-	    			for(var i = 0; i<home.rooms.length; i++){
-	    				if(home.rooms[i].nameRoom === $(".detailroomname").text()){
-	    					deviceSource = home.rooms[i].devices;
-	    					loadDevice(deviceSource);
-	    					scheduleTempHumi($(".detailroomname").text());
-	    					return;
+	    			loadDevice(listDeviceSave);
+	    			for(var i = 0; i<listDeviceSave.length; i++){
+	    				if(listDeviceSave[i].type === "Temperature Device"){
+	    					isTempDeviceExits = true;
+	    					continue;
+	    				}
+	    				if(listDeviceSave[i].type === "Humidity Device" ){
+	    					isHumiDeviceExits = true;
+	    					continue;
 	    				}
 	    			}
-
+	    			checkExitsDevices($(".detailroomname").text(), isTempDeviceExits, isHumiDeviceExits);
 	    		}else if(status_create == 302){
 	    			alert("The Ip is exits, please use another Ip")
 	    		}
 			}
 		})
+	}
+
+	function checkExitsDevices(nameRoom, isTempExit, isHumiexit){
+		if(isTempExit && !isHumiexit){
+			listIdIntervalSaveDevice.push({nameroom:nameRoom, id:scheduleTemp(nameRoom)});
+	    }
+	    if(isHumiexit && !isTempExit){
+	    	listIdIntervalSaveDevice.push({nameroom:nameRoom, id:scheduleHumi(nameRoom)});
+	    }
+	    if(isHumiexit && isTempExit){
+	    	listIdIntervalSaveDevice.push({nameroom:nameRoom, id:scheduleTempHumi(nameRoom)});
+	    }
+	    return listIdIntervalSaveDevice;
 	}
 
 	function loadDevice(listDevice){
@@ -437,13 +499,13 @@
 		var today = new Date();
 		var date = today.getFullYear()+'-'+(today.getMonth()+1)+'-'+today.getDate();
 		var time = today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
-		var dateTime = date+time;
+		var dateTime = date+' '+time;
     	var temp = getTemperatureIn(counttag);
     	var humi = getHumidityIn(counttag);
     	$.ajax({
 	    	async : false,
 			method: "post",
-			data: JSON.stringify({ dateTime:dateTime, temp:temp, humi:humi}),
+			data: JSON.stringify({ dateTime:dateTime, temp:temp, humi:humi}),//Review Here
 			contentType: "application/json",
 			url: "http://localhost/smarthome/savereport/"+counttag+ "/" + $(".username").text()+ "/" + $(".thishome").text()
 		}).done(function(data, textStatus, xhr){

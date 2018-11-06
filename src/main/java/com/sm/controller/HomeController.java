@@ -32,13 +32,17 @@ public class HomeController {
 	public ResponseEntity<HttpStatus> createHome(@RequestBody HomeProject homeProject, @PathVariable("user_name") String user_name){
 		Boolean isexits = false;
 		Account account = accountService.getAccountByName(user_name);
-		homeProject.setAccount(account);
-		List<HomeProject> listhomes = account.getHome();
-		for(HomeProject home : listhomes) {
-			if(home.getNameHome().compareTo(homeProject.getNameHome())==0) {
-				isexits = true;
-				break;
+		if(!accountService.isExistAccount(account)) {
+			homeProject.setAccount(account);
+			List<HomeProject> listhomes = account.getHome();
+			for(HomeProject home : listhomes) {
+				if(home.getNameHome().compareTo(homeProject.getNameHome())==0) {
+					isexits = true;
+					break;
+				}
 			}
+		}else {
+			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 		}
 		if(!isexits) {
 			homeService.createHome(homeProject);

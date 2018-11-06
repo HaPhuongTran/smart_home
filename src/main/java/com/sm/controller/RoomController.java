@@ -66,10 +66,10 @@ public class RoomController {
 		}
 	}
 	
-	@RequestMapping(value = "/getlistrooms/{name_home}", method = RequestMethod.GET, headers="Accept=application/json")
-	public List<Rooms> getListRoomByIdHome(@PathVariable("name_home") String name_home){
-		return roomService.getListRooms(name_home);
-	}
+//	@RequestMapping(value = "/getlistrooms/{name_home}", method = RequestMethod.GET, headers="Accept=application/json")
+//	public List<Rooms> getListRoomByIdHome(@PathVariable("name_home") String name_home){
+//		return roomService.getListRooms(name_home);
+//	}
 	
 	@RequestMapping(value = "/deleteroom/{name_room}/{name_home}", method = RequestMethod.DELETE, headers="Accept=application/json")
 	public ResponseEntity<HttpStatus> deleteRoom(@PathVariable("name_room") String name_room, @PathVariable("name_home") String name_home){

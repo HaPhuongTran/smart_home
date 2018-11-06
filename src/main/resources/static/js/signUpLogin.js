@@ -75,6 +75,9 @@ $(document).ready(function(){
 			else{
 				$("p.anncounce").css("display", "block");
 				$("p.anncounce").removeAttr("text-align");
+				setTimeout(function(){
+					$("p.anncounce").css("display", "none");
+				},1000);
 			}
 		});
 	}
