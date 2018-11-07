@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.sm.entity.Account;
-import com.sm.entity.Device;
 import com.sm.entity.HomeProject;
 import com.sm.entity.Report;
 import com.sm.entity.Rooms;
@@ -32,7 +31,7 @@ public class ReportController {
 	@Autowired
 	AccountService accountService;
 	@RequestMapping(value = "/savereport/{room_name}/{user_name}/{home_name}", method = RequestMethod.POST)
-	public ResponseEntity<HttpStatus> createDevices( @RequestBody Report report,@PathVariable("room_name") String room_name, @PathVariable("user_name") String user,  @PathVariable("home_name") String home){
+	public ResponseEntity<HttpStatus> createDevices( @RequestBody Report report, @PathVariable("room_name") String room_name, @PathVariable("user_name") String user,  @PathVariable("home_name") String home){
 		Account account = accountService.getAccountByName(user);
 		List<HomeProject> homes = account.getHome();
 		List<Rooms> rooms = new ArrayList<Rooms>();
@@ -44,6 +43,8 @@ public class ReportController {
 		for(Rooms room: rooms) {
 			if(room.getNameRoom().equals(room_name)) {
 				report.setRoomIdReport(room);
+				report.setDate(java.time.LocalDate.now());
+				report.setTime(java.time.LocalTime.now());
 				reportService.save(report);
 				break;
 			}

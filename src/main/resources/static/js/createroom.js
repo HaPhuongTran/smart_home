@@ -300,45 +300,59 @@
 	}
 
 	function createChart(listDataTime, listTemp, listHumi){
+
 		var createChart = document.getElementById("reportChart").getContext('2d');
-		//
+		//get value of date to set labels, datasets
 		var chart = new Chart(createChart, {
 		    type: 'line',
 		    data: {
 		        labels:listDataTime,
 		        datasets: [{
 		            label: "Temp",
-		            backgroundColor: 'rgb(255, 99, 132)',
-		            borderColor: 'rgb(255, 99, 132)',
+		            backgroundColor: 'rgba(255, 255, 255,0)',
+		            borderColor: 'rgb(0, 128, 128)',
 		            data: listTemp
 		        },
 		        {
 		        	label: "Humi",
-		            backgroundColor: 'rgb(34, 99, 132)',
-		            borderColor: 'rgb(34, 99, 132)',
+		        	backgroundColor: 'rgba(255, 255, 255,0)',
+		            borderColor: 'rgb(159, 59, 168)',
 		            data: listHumi,
-		            type: 'bar'
 		        }
 		        ]
 		    },
-		    options: {}
+		    options: {
+                scales: {
+                    yAxes: [{
+                        ticks: {
+                            beginAtZero:true,
+                            responsive:true
+                        }
+                    }]
+                },
+            }
 		});
 	}
 
 	function viewReport(roomcount){
 		$(".report"+roomcount).click(function(){
+			pickDate();
 			var room = getRoom(roomcount);
 			var listrecordReport = room.reports;
-			var listDataTime = [], listTemp = [], listHumi = [];
+			var listDataTime = [];
+			var listDate = [], listTime = [], listTemp = [], listHumi = [];
 			for(var i =0; i<listrecordReport.length; i++){
-				listDataTime.push(listrecordReport[i].dateTime);
+				listDate.push(listrecordReport[i].date);
+				listTime.push(listrecordReport[i].time);
 				listTemp.push(listrecordReport[i].temp);
 				listHumi.push(listrecordReport[i].humi);
+				listDataTime.push(listrecordReport[i].date+"  "+listrecordReport[i].time);
 			}
 			var table = $('#dtBasicExample').DataTable({
 				data: listrecordReport,
 				columns: [
-			        { data: 'dateTime'},
+			        { data: 'date'},
+			        { data: 'time'},
 			        { data: 'temp' },
 			        { data: 'humi' }
 			    ],
@@ -496,16 +510,12 @@
 		})
 	}
 	function saveInfoToReport(counttag){
-		var today = new Date();
-		var date = today.getFullYear()+'-'+(today.getMonth()+1)+'-'+today.getDate();
-		var time = today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
-		var dateTime = date+' '+time;
     	var temp = getTemperatureIn(counttag);
     	var humi = getHumidityIn(counttag);
     	$.ajax({
 	    	async : false,
 			method: "post",
-			data: JSON.stringify({ dateTime:dateTime, temp:temp, humi:humi}),//Review Here
+			data: JSON.stringify({temp:temp, humi:humi}),
 			contentType: "application/json",
 			url: "http://localhost/smarthome/savereport/"+counttag+ "/" + $(".username").text()+ "/" + $(".thishome").text()
 		}).done(function(data, textStatus, xhr){
@@ -514,6 +524,16 @@
 			status_create = data.status;
 		});
 
+    }
+
+    function pickDate(){  
+		$('.datepicker').datepicker({
+        weekStart: 1,
+        daysOfWeekHighlighted: "6,0",
+        autoclose: true,
+        todayHighlight: true,
+    });
+    	$('.datepicker').datepicker("setDate", new Date());
     }
 	function setValueForForm(id, humi, temp){
 		$(".idHumiTemp").val(id);

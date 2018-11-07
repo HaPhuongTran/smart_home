@@ -1,6 +1,7 @@
 package com.sm.entity;
 
-import java.util.Date;
+import java.time.LocalDate;
+import java.time.LocalTime;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -11,8 +12,6 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
@@ -25,12 +24,10 @@ public class Report {
 	private int id;
 	
 	@Column(name = "Date")
-	@Temporal(TemporalType.DATE)
-    private Date date;
+	private java.time.LocalDate date;
 	
 	@Column(name = "Time")
-	@Temporal(TemporalType.TIME)
-    private Date time;
+    private java.time.LocalTime time;
 	
 	@Column(name = "Temp")
 	private int temp;
@@ -77,4 +74,21 @@ public class Report {
 	public void setRoomIdReport(Rooms roomIdReport) {
 		this.roomIdReport = roomIdReport;
 	}
+
+	public LocalDate getDate() {
+		return date;
+	}
+
+	public LocalTime getTime() {
+		return time;
+	}
+
+	public void setDate(LocalDate date) {
+		this.date = date;
+	}
+
+	public void setTime(LocalTime time) {
+		this.time = time;
+	}
+	
 }
