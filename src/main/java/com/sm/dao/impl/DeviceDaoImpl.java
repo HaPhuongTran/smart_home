@@ -1,7 +1,6 @@
 package com.sm.dao.impl;
 
 
-import java.util.List;
 import java.util.Set;
 
 import javax.persistence.Query;

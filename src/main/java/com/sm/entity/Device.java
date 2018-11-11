@@ -24,11 +24,15 @@ public class Device {
 	@Column(name = "ip")
 	private String ip;
 	
+	@Column(name = "subnet_mask")
+	private String subnetMask;
+	
+	@Column(name = "gateway")
+	private String gateway;
+	
 	@Column(name = "name", nullable = false)
 	private String nameDevice;
 	
-	@Column(name = "state")
-	private String state = "off";
 	
 	@Column(name = "type")
 	private String type;
@@ -68,13 +72,6 @@ public class Device {
 		this.nameDevice = nameDevice;
 	}
 
-	public String getState() {
-		return state;
-	}
-
-	public void setState(String state) {
-		this.state = state;
-	}
 
 	@JsonIgnore
 	public Rooms getRoomId() {
@@ -92,5 +89,21 @@ public class Device {
 	public void setType(String type) {
 		this.type = type;
 	}
-	
+
+	public String getSubnetMask() {
+		return subnetMask;
+	}
+
+	public void setSubnetMask(String subnetMask) {
+		this.subnetMask = subnetMask;
+	}
+
+	public String getGateway() {
+		return gateway;
+	}
+
+	public void setGateway(String gateway) {
+		this.gateway = gateway;
+	}
+
 }

@@ -1,6 +1,7 @@
 package com.sm.controller;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,8 +44,7 @@ public class ReportController {
 		for(Rooms room: rooms) {
 			if(room.getNameRoom().equals(room_name)) {
 				report.setRoomIdReport(room);
-				report.setDate(java.time.LocalDate.now());
-				report.setTime(java.time.LocalTime.now());
+				report.setDate(new Date());
 				reportService.save(report);
 				break;
 			}

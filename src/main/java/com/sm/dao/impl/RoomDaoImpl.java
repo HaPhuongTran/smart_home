@@ -12,7 +12,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import com.sm.dao.RoomDao;
-import com.sm.entity.HomeProject;
 import com.sm.entity.Rooms;
 
 @Repository

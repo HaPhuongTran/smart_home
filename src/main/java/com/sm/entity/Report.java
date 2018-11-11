@@ -1,7 +1,6 @@
 package com.sm.entity;
 
-import java.time.LocalDate;
-import java.time.LocalTime;
+import java.util.Date;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -24,10 +23,8 @@ public class Report {
 	private int id;
 	
 	@Column(name = "Date")
-	private java.time.LocalDate date;
+	private Date date;
 	
-	@Column(name = "Time")
-    private java.time.LocalTime time;
 	
 	@Column(name = "Temp")
 	private int temp;
@@ -75,20 +72,11 @@ public class Report {
 		this.roomIdReport = roomIdReport;
 	}
 
-	public LocalDate getDate() {
+	public Date getDate() {
 		return date;
 	}
 
-	public LocalTime getTime() {
-		return time;
-	}
-
-	public void setDate(LocalDate date) {
+	public void setDate(Date date) {
 		this.date = date;
 	}
-
-	public void setTime(LocalTime time) {
-		this.time = time;
-	}
-	
 }

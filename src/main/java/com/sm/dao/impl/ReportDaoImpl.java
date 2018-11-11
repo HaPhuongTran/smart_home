@@ -1,5 +1,8 @@
 package com.sm.dao.impl;
 
+
+import javax.persistence.Query;
+
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +20,15 @@ public class ReportDaoImpl implements ReportDao {
 	public void save(Report report) {
 		Session session = sessionFactory.getCurrentSession();
 		session.save(report);
+	}
+
+	@Override
+	public void delete(int idRoom) {
+		Session session = sessionFactory.getCurrentSession();
+		Query query = session.createQuery("DELETE FROM Report where roomIdReport = (SELECT id FROM Rooms WHERE id = :id)");
+		query.setParameter("id", idRoom);
+		query.executeUpdate();
+		
 	}
 
 }

@@ -1,0 +1,53 @@
+<!-- Central Modal Medium Info -->
+  <div class="modal-dialog modal-notify modal-info modal-side modal-top-right" role="document">
+    <!--Content-->
+    <div class="modal-content">
+      <!--Header-->
+      <div class="modal-header">
+        <p class="heading lead nameAirConditioner"></p>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true" class="white-text">&times;</span>
+        </button>
+      </div>
+
+      <!--Body-->
+      <div class="modal-body">
+        <label class="bs-switch">
+           <input type="checkbox" class="ACcheckbox">
+            <span class="slider round"></span>
+        </label><br>
+        <hr>
+        <div class="custom-control custom-radio custom-control-inline">
+          <input type="radio" class="custom-control-input" id="defaultInline1" name="modeair" value = "Cold">
+          <label class="custom-control-label" for="defaultInline1">Cold</label>
+        </div>
+
+        <div class="custom-control custom-radio custom-control-inline">
+          <input type="radio" class="custom-control-input" id="defaultInline2" name="modeair" value = "Cool & hygroscopic">
+          <label class="custom-control-label" for="defaultInline2">Cool & hygroscopic</label>
+        </div><br>
+        <hr>
+        <p>
+          <label>Set Temperature</label><br>
+          <input id="spinner-temperature" name="value">
+        </p>
+        <p>
+          <label>Set Timer (minute)</label><br>
+          <input id="spinner-timer" name="value">
+        </p>
+        <hr>
+        <span>Fan:</span><br>
+        <select class="browser-default custom-select fan-air" style="width:50%;">
+          <option id ="" value='Weak'>Weak</option>
+          <option id ="" value='Medium'>Medium</option>
+          <option id ="" value='Strong'>Strong</option>
+        </select>
+        <hr>
+      <!--Footer-->
+      <div class="modal-footer justify-content-center">
+        <a type="button" class="btn btn-primary btn-setcontrolAir">OK</a>
+        <a type="button" class="btn btn-outline-primary waves-effect" data-dismiss="modal">Close</a>
+      </div>
+    </div>
+    <!--/.Content-->
+  </div>

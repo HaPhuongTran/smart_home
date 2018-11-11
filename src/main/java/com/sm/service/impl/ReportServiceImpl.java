@@ -22,4 +22,11 @@ public class ReportServiceImpl implements ReportService{
 		reportDao.save(report);
 	}
 
+	@Override
+	@Transactional
+	public void delete(int idRoom) {
+		reportDao.delete(idRoom);
+		
+	}
+
 }

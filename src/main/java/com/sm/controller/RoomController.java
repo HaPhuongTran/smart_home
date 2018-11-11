@@ -16,8 +16,10 @@ import org.springframework.web.bind.annotation.RestController;
 import com.sm.entity.Device;
 import com.sm.entity.HomeProject;
 import com.sm.entity.HumiTempUser;
+import com.sm.entity.Report;
 import com.sm.entity.Rooms;
 import com.sm.service.HomeService;
+import com.sm.service.ReportService;
 import com.sm.service.RoomService;
 import com.sm.service.UserHumiTempService;
 
@@ -35,6 +37,8 @@ public class RoomController {
 	@Autowired
 	UserHumiTempService userHumiTempService;
 	
+	@Autowired
+	ReportService reportService;
 	
 	@RequestMapping(value = "/getroom/{name_room}/{namehome}", method = RequestMethod.GET, headers="Accept=application/json")
 	public Rooms getRoomByName(@PathVariable("name_room") String name_room, @PathVariable("namehome") String namehome){
@@ -78,6 +82,13 @@ public class RoomController {
 			HumiTempUser humiTempUser = rooms.getHumitemp();
 			if(humiTempUser != null) {
 				userHumiTempService.deleteHumiTempUser(humiTempUser);
+			}
+		}catch(NullPointerException e) {}
+		
+		try {
+			Set<Report> report = rooms.getReports();
+			if(report != null && report.size()>0) {
+				reportService.delete(rooms.getId());
 			}
 		}catch(NullPointerException e) {}
 		

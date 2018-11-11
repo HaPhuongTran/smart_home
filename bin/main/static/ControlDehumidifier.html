@@ -1,0 +1,43 @@
+<!-- Central Modal Medium Info -->
+  <div class="modal-dialog modal-notify modal-info modal-side modal-top-right" role="document">
+    <!--Content-->
+    <div class="modal-content">
+      <!--Header-->
+      <div class="modal-header">
+        <p class="heading lead nameDehumidifier"></p>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true" class="white-text">&times;</span>
+        </button>
+      </div>
+
+      <!--Body-->
+      <div class="modal-body">
+        <label class="bs-switch">
+           <input type="checkbox" class="DHcheckbox">
+            <span class="slider round"></span>
+        </label><br>
+        <hr>
+        <p>
+          <label>Set Humidity </label><br>
+          <input id="spinner-Dehumidifier" name="value">
+        </p>
+        <p>
+          <label>Set Timer (minute)</label><br>
+          <input id="Dehumidifier-timer" name="value">
+        </p>
+        <hr>
+        <span>Fan:</span><br>
+        <select class="browser-default custom-select" style="width:50%;">
+          <option id ="" value='Weak'>Weak</option>
+          <option id ="" value='Medium'>Medium</option>
+          <option id ="" value='Strong'>Strong</option>
+        </select>
+        <hr>
+      <!--Footer-->
+      <div class="modal-footer justify-content-center">
+        <a type="button" class="btn btn-primary btn-setcontrolDehumi">OK</a>
+        <a type="button" class="btn btn-outline-primary waves-effect" data-dismiss="modal">Close</a>
+      </div>
+    </div>
+    <!--/.Content-->
+  </div>

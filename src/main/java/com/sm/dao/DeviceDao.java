@@ -1,6 +1,5 @@
 package com.sm.dao;
 
-import java.util.List;
 import java.util.Set;
 
 import com.sm.entity.Device;

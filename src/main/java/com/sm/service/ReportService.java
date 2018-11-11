@@ -4,4 +4,5 @@ import com.sm.entity.Report;
 
 public interface ReportService {
 	public void save(Report report);
+	public void delete(int idRoom);
 }

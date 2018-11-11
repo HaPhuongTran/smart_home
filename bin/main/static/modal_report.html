@@ -22,9 +22,6 @@
             <th class="th-sm">Date
               <i class="fa fa-sort float-right" aria-hidden="true"></i>
             </th>
-            <th class="th-sm">Time
-              <i class="fa fa-sort float-right" aria-hidden="true"></i>
-            </th>
             <th class="th-sm">Temparture
               <i class="fa fa-sort float-right" aria-hidden="true"></i>
             </th>
@@ -38,8 +35,6 @@
         <tfoot>
           <tr>
             <th>Date
-            </th>
-            <th>time
             </th>
             <th>Temparture
             </th>
@@ -60,15 +55,15 @@
       <div class="row">
           <div class="col-sm-3">
             <span >From:</span>
-            <input data-date-format="dd/mm/yyyy" class="datepicker">
+            <input data-date-format="dd/mm/yyyy" class="datepicker fromDate">
           </div>
           <div class="col-sm-3">
             <span >To:</span>
-            <input data-date-format="dd/mm/yyyy" class="datepicker">
+            <input data-date-format="dd/mm/yyyy" class="datepicker toDate">
           </div>
           <div class="col-sm-3">
             <!-- <button type="button" class="btn btn-outline-info waves-effect">View</button> -->
-            <input type="button" name="" value="View">
+            <input type="button" name="" value="View" class="viewChartDate">
           </div>
       </div>
     </main>

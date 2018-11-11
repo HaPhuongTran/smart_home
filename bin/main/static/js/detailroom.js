@@ -1,5 +1,5 @@
 
-function createTableDevice(datasource){
+function createTableDevice(datasource, listIdIntervalSaveDevice){
     $("#grid").shieldGrid({
         dataSource: {
             data: datasource,
@@ -7,8 +7,9 @@ function createTableDevice(datasource){
                 fields:{
                 	id: {path: "id", type: Number},
 					ip: {path:"ip", type: String},
+                    subnetMask: {path:"subnetMask", type: String},
+                    gateway: {path:"gateway", type: String},
 					nameDevice: {path:"nameDevice", type: String},
-					state: {path: "state", type: String},
 					type: {path: "type", type: String}
 				}
             }
@@ -20,8 +21,9 @@ function createTableDevice(datasource){
         columns: [
         	{ field: "id", title: "Device ID", width: "120px" },
             { field: "ip", title: "Device IP", width: "120px" },
+            { field: "subnetMask", title: "Device Subnet", width: "120px" },
+            { field: "gateway", title: "Device Gateway", width: "120px" },
 			{ field: "nameDevice", title: "Device Name", width: "120px" },
-			{ field: "state", title: "State", width: "120px"},
 			{ field: "type", title: "Type of device", width: "120px", editor:myCustomEditor},
 			{
                 width: 150,
@@ -52,6 +54,16 @@ function createTableDevice(datasource){
                             }).fail(function(data, textStatus, xhr){
                                 status_create = data.status;
                             });
+                            var nameRoom = $(".detailroomname").text();
+
+                            if(status_create === 200 && item.type === "Temperature Device"){
+                                $(".tempertaureIn"+nameRoom).html('');
+                                    clearIntervalDevice(listIdIntervalSaveDevice, nameRoom,item.id );
+                            }
+                            if(status_create === 200 && item.type === "Humidity Device"){
+                                $(".humidityIn"+nameRoom).html('');
+                                    clearIntervalDevice(listIdIntervalSaveDevice, nameRoom, item.id );
+                            }
                             return "Delete row with ID = " + item.id;  
                         }
                     }
@@ -67,12 +79,23 @@ function createTableDevice(datasource){
     });
 }
 
+function clearIntervalDevice(listIdIntervalSaveDevice, nameRoom, idItem){
+    if(listIdIntervalSaveDevice != undefined && listIdIntervalSaveDevice.length>0){
+        for(var i = 0; i<listIdIntervalSaveDevice.length; i++){
+            if(listIdIntervalSaveDevice[i].nameroom === nameRoom && listIdIntervalSaveDevice[i].idDevice === idItem){
+                clearInterval(listIdIntervalSaveDevice[i].id);
+                listIdIntervalSaveDevice.splice(i,1);
+            }
+        }
+    }
+}
+
 function myCustomEditor(cell, item) {
 $('<div id="dropdown"/>')
   .appendTo(cell)
   .shieldDropDown({
     dataSource: {
-      data: ["Dehumidifier", "Nebulizer", "Heating Equipment", "Air-Conditioner", "Temperature Device", "Humidity Device"]
+      data: ["Dehumidifier", "Heating Equipment", "Air-Conditioner", "Temperature Device", "Humidity Device"]
     },
     value: !item["transport"] ? null : item["transport"].toString()
   }).swidget().focus();
