@@ -103,43 +103,67 @@
     }
     function getvalueDehumiSentToSocketServer(spinerDevice, spinerTime){
     	$(".btn-setcontrolDehumi").click(function(){
+    		var data;
     		var state = false;
     		var humidity, time, fan_level;
 			if($(".DHcheckbox").prop("checked") == true){
 				state = true;
     		}
-			temp = spinerDevice[0].value;
-			time = spinerTime[0].value;
+			temp = parseInt(spinerDevice[0].value);
+			time = parseInt(spinerTime[0].value);
 			fan_level = $( ".fan-air option:selected" ).text();
+			data = {state:state, humi:humidity, time: time, fanLevel:fan_level};
+			sentDataToSocket(data);
     	})
     }
 
     function getvalueHeatSentToSocketServer(spinerDevice, spinerTime){
     	$(".btn-setcontrolHeat").click(function(){
+    		var data = [];
     		var state = false;
     		var temp, time, fan_level;
 			if($(".HEcheckbox").prop("checked") == true){
 				state = true;
     		}
-			temp = spinerDevice[0].value;
-			time = spinerTime[0].value;
+			temp = parseInt(spinerDevice[0].value);
+			time = parseInt(spinerTime[0].value);
 			fan_level = $( ".fan-air option:selected" ).text();
+			data = {state:state,temp:temp, time: time, fanLevel:fan_level};
+			sentDataToSocket(data);
     	})
     }
     function getvalueAirSentToSocketServer(spinerDevice, spinerTime){
     	$(".btn-setcontrolAir").click(function(){
     		var state = false;
+    		var data;
     		var mode, temp, time, fan_level;
 			if($(".ACcheckbox").prop("checked") == true){
 				state = true;
     		}
 			mode = $("input[name='modeair']:checked").val();
-			temp = spinerDevice[0].value;
-			time = spinerTime[0].value;
+			temp = parseInt(spinerDevice[0].value);
+			time = parseInt(spinerTime[0].value);
 			fan_level = $( ".fan-air option:selected" ).text();
+			data = {state:state, mode:mode, temp:temp, time: time, fanLevel:fan_level};
+			sentDataToSocket(data);
 
     	})
     }
+
+    function sentDataToSocket(data){
+    	$.ajax({
+	    	async : false,
+			method: "post",
+			data: JSON.stringify(data),
+			contentType: "application/json",
+			url: "http://localhost/smarthome/control"
+		}).done(function(data, textStatus, xhr){
+			status_create = xhr.status;
+		}).fail(function(data, textStatus, xhr){
+				 status_create = data.status;
+		});
+    }
+
     function swichHome(homecount){
     	$(".listhome"+homecount).click(function(){
     		countroom = 0;
@@ -369,8 +393,8 @@
 	}
 
 	function reformatDateString(day) {
-	  var dayconvert = day.split(/\D/);
-	  return dayconvert.reverse().join('-');
+	  var dayconvert = day.split('/').join('-');
+	  return dayconvert.substring(6)+"-"+dayconvert.substring(0,5);
 	}
 	function createChart(listDateTime_Humi_Temp){
 		listLable = [];
