@@ -1,7 +1,9 @@
 package com.sm.socket;
 
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -21,12 +23,11 @@ public class SocketServer {
 					Socket socket = serverSocket.accept();
 					InputStream input = socket.getInputStream();
 					OutputStream output = socket.getOutputStream();
-					while(true) {
-						Scanner nc = new Scanner(input);
-						String json = nc.nextLine();
-						System.out.println(json);
-					}
-//					socket.close();
+					Scanner sn = new Scanner(input);
+					String content = sn.nextLine();
+					JSONObject json = new JSONObject(content);
+					System.out.println(json.get("temp"));
+					socket.close();
 				}catch(IOException e) {
 					System.err.println("Connect Error: " + e);
 				}

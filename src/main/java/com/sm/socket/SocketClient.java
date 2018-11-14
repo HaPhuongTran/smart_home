@@ -8,6 +8,9 @@ import java.net.Socket;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 
 
 public class SocketClient {
@@ -19,17 +22,19 @@ public class SocketClient {
 			Socket socket = new Socket(ipServer, serverPort);
 			InputStream input = socket.getInputStream();
 			OutputStream output = socket.getOutputStream();
-			while(true) { 	
-				Map<String, String> json = new HashMap<>();
-					json.put("type", "CONNECT");
-					System.out.println(json);
-					PrintWriter pw = new PrintWriter(output);
-					pw.println(json);
-					pw.flush();
-			}
-//			socket.close();
+			PrintWriter pw = new PrintWriter(output);
+			JSONObject obj = new JSONObject();
+			obj.put("state", true);
+			obj.put("temp", 30);
+			String a = obj.toString();
+			System.out.print(a);
+			pw.println(obj.toString());
+			pw.flush();
+			socket.close();
 		}catch(IOException e) {
 			System.err.print(e);
+		} catch (JSONException e) {
+			e.printStackTrace();
 		}
 	}
 
