@@ -1,8 +1,5 @@
 package com.sm.entity;
 
-import javax.persistence.Entity;
-
-//@Entity
 public class InfoDevice {
 	private Boolean state;
 	private String mode;
@@ -10,6 +7,8 @@ public class InfoDevice {
 	private int humi;
 	private int time;
 	private String fanLevel;
+	private String ip;
+	private String nameDevice;
 	public Boolean getState() {
 		return state;
 	}
@@ -45,6 +44,18 @@ public class InfoDevice {
 	}
 	public void setFanLevel(String fanLevel) {
 		this.fanLevel = fanLevel;
+	}
+	public String getIp() {
+		return ip;
+	}
+	public String getNameDevice() {
+		return nameDevice;
+	}
+	public void setIp(String ip) {
+		this.ip = ip;
+	}
+	public void setNameDevice(String nameDevice) {
+		this.nameDevice = nameDevice;
 	}
 	
 }

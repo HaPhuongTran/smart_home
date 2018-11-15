@@ -80,28 +80,29 @@
     	$(".btn-ok-control").click(function(){
     		var typeDevice = $( ".select-Device option:selected" ).val();
     		var nameDevice = $( ".select-Device option:selected" ).text();
+    		var ipDevice = $(".select-Device option:selected").attr("id");
     		if(typeDevice === "Air-Conditioner"){
     			$(".nameAirConditioner").text(nameDevice);
     			$("#AirConditionControl").modal();
     			var spinerTemp = $( "#spinner-temperature" ).spinner();
     			var spinerTime = $( "#spinner-timer" ).spinner();
-    			getvalueAirSentToSocketServer(spinerTemp, spinerTime);
+    			getvalueAirSentToSocketServer(spinerTemp, spinerTime, nameDevice, ipDevice);
     		}else if(typeDevice === "Dehumidifier"){
     			$(".nameDehumidifier").text(nameDevice);
     			$("#DehumidifierControl").modal();
     			var spinerDehumi = $( "#spinner-Dehumidifier" ).spinner();
     			var spinerTime = $( "#Dehumidifier-timer" ).spinner();
-    			getvalueDehumiSentToSocketServer(spinerDehumi, spinerTime);
+    			getvalueDehumiSentToSocketServer(spinerDehumi, spinerTime, nameDevice, ipDevice);
     		}else if(typeDevice === "Heating"){
     			$(".nameHeatingEquipmentr").text(nameDevice);
     			$("#HeatingEquipmentrControl").modal();
     			var spinerHeat  = $( "#spinner-HeatingEquipmentr" ).spinner();
     			var spinerTime = $( "#HeatingEquipmentr-timer" ).spinner();
-    			getvalueHeatSentToSocketServer(spinerHeat, spinerTime);
+    			getvalueHeatSentToSocketServer(spinerHeat, spinerTime, nameDevice, ipDevice);
     		}
     	})
     }
-    function getvalueDehumiSentToSocketServer(spinerDevice, spinerTime){
+    function getvalueDehumiSentToSocketServer(spinerDevice, spinerTime, nameDevice, ipDevice){
     	$(".btn-setcontrolDehumi").click(function(){
     		var data;
     		var state = false;
@@ -112,12 +113,14 @@
 			temp = parseInt(spinerDevice[0].value);
 			time = parseInt(spinerTime[0].value);
 			fan_level = $( ".fan-air option:selected" ).text();
-			data = {state:state, humi:humidity, time: time, fanLevel:fan_level};
+			data = {state:state, humi:humidity, time: time, fanLevel:fan_level, ip:ipDevice, nameDevice:nameDevice};
 			sentDataToSocket(data);
+			$(".btn-setcontrolDehumi").unbind( "click" );
+			return;
     	})
     }
 
-    function getvalueHeatSentToSocketServer(spinerDevice, spinerTime){
+    function getvalueHeatSentToSocketServer(spinerDevice, spinerTime,nameDevice, ipDevice){
     	$(".btn-setcontrolHeat").click(function(){
     		var data = [];
     		var state = false;
@@ -128,11 +131,13 @@
 			temp = parseInt(spinerDevice[0].value);
 			time = parseInt(spinerTime[0].value);
 			fan_level = $( ".fan-air option:selected" ).text();
-			data = {state:state,temp:temp, time: time, fanLevel:fan_level};
+			data = {state:state,temp:temp, time: time, fanLevel:fan_level, ip:ipDevice, nameDevice:nameDevice};
 			sentDataToSocket(data);
+			$(".btn-setcontrolHeat").unbind( "click" );
+			return;
     	})
     }
-    function getvalueAirSentToSocketServer(spinerDevice, spinerTime){
+    function getvalueAirSentToSocketServer(spinerDevice, spinerTime, nameDevice, ipDevice){
     	$(".btn-setcontrolAir").click(function(){
     		var state = false;
     		var data;
@@ -144,24 +149,28 @@
 			temp = parseInt(spinerDevice[0].value);
 			time = parseInt(spinerTime[0].value);
 			fan_level = $( ".fan-air option:selected" ).text();
-			data = {state:state, mode:mode, temp:temp, time: time, fanLevel:fan_level};
+			data = {state:state, mode:mode, temp:temp, time: time, fanLevel:fan_level, ip:ipDevice, nameDevice:nameDevice};
 			sentDataToSocket(data);
-
+			$(".btn-setcontrolAir").unbind( "click" );
+			return;
     	})
     }
 
-    function sentDataToSocket(data){
+    function sentDataToSocket(dataDevice){
+    	var message;
     	$.ajax({
 	    	async : false,
 			method: "post",
-			data: JSON.stringify(data),
+			data: JSON.stringify(dataDevice),
 			contentType: "application/json",
+			dataType: "text",
 			url: "http://localhost/smarthome/control"
 		}).done(function(data, textStatus, xhr){
-			status_create = xhr.status;
+			message = data
 		}).fail(function(data, textStatus, xhr){
-				 status_create = data.status;
+			message = data;
 		});
+		showToastr(message, "info");
     }
 
     function swichHome(homecount){

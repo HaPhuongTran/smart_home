@@ -25,21 +25,20 @@ public class SocketServer {
 					InputStream input = socket.getInputStream();
 					OutputStream output = socket.getOutputStream();
 					Scanner sn = new Scanner(input);
-					PrintWriter wr = new PrintWriter(output);
+					PrintWriter printWriter = new PrintWriter(output);
 					String content = sn.nextLine();
 					JSONObject json = new JSONObject(content);
 					if((boolean) json.get("state")) {
-						wr.println("The "+json.get("temp")+ "is" + json.get("state"));
-					    wr.flush();
-						socket.close();
-						break;
+						printWriter.println(json.get("nameDevice")+" with ip: " + json.get("ip") + " is ON");
+						printWriter.flush();
+					}else {
+						printWriter.println(json.get("nameDevice")+" with ip: " + json.get("ip") + " is OFF");
+						printWriter.flush();
 					}
 					//Begin
-					URL url = new URL("http://localhost/login");
-					URLConnection conn = url.openConnection();
-					conn.setDoOutput(true);
-				    wr.println("The "+json.get("temp")+ " is " + json.get("state"));
-				    wr.flush();
+//					URL url = new URL("http://localhost/login");
+//					URLConnection conn = url.openConnection();
+//					conn.setDoOutput(true);
 				    //End
 					socket.close();
 				}catch(IOException e) {
