@@ -25,9 +25,12 @@ public class SocketServer {
 					InputStream input = socket.getInputStream();
 					OutputStream output = socket.getOutputStream();
 					Scanner sn = new Scanner(input);
+					PrintWriter wr = new PrintWriter(output);
 					String content = sn.nextLine();
 					JSONObject json = new JSONObject(content);
 					if((boolean) json.get("state")) {
+						wr.println("The "+json.get("temp")+ "is" + json.get("state"));
+					    wr.flush();
 						socket.close();
 						break;
 					}
@@ -35,8 +38,7 @@ public class SocketServer {
 					URL url = new URL("http://localhost/login");
 					URLConnection conn = url.openConnection();
 					conn.setDoOutput(true);
-					PrintWriter wr = new PrintWriter(output);
-				    wr.println("The "+json.get("temp")+ "is" + json.get("state"));
+				    wr.println("The "+json.get("temp")+ " is " + json.get("state"));
 				    wr.flush();
 				    //End
 					socket.close();

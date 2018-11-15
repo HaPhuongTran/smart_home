@@ -7,6 +7,7 @@ import java.io.PrintWriter;
 import java.net.Socket;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Scanner;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -27,9 +28,12 @@ public class SocketClient {
 			obj.put("state", false);
 			obj.put("temp", 30);
 			String a = obj.toString();
-			System.out.print(a);
 			pw.println(obj.toString());
 			pw.flush();
+			
+			Scanner sn = new Scanner(input);
+			String data = sn.nextLine();
+			System.out.println(data);
 			socket.close();
 		}catch(IOException e) {
 			System.err.print(e);
