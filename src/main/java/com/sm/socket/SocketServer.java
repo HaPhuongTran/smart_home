@@ -1,18 +1,19 @@
 package com.sm.socket;
 
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.URL;
+import java.net.URLConnection;
 import java.util.Scanner;
 
 import org.json.JSONObject;
 
 public class SocketServer {
-	private final static int defaultPort = 3333;
+	private static int defaultPort = 3333;
 
 	public static void main(String[] args) {
 	
@@ -26,7 +27,18 @@ public class SocketServer {
 					Scanner sn = new Scanner(input);
 					String content = sn.nextLine();
 					JSONObject json = new JSONObject(content);
-					System.out.println(json.get("temp"));
+					if((boolean) json.get("state")) {
+						socket.close();
+						break;
+					}
+					//Begin
+					URL url = new URL("http://localhost/login");
+					URLConnection conn = url.openConnection();
+					conn.setDoOutput(true);
+					PrintWriter wr = new PrintWriter(output);
+				    wr.println("The "+json.get("temp")+ "is" + json.get("state"));
+				    wr.flush();
+				    //End
 					socket.close();
 				}catch(IOException e) {
 					System.err.println("Connect Error: " + e);

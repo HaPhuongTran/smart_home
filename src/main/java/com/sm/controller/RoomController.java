@@ -87,13 +87,13 @@ public class RoomController {
 		
 		try {
 			Set<Report> report = rooms.getReports();
-			if(report != null && report.size()>0) {
+			if(report != null && report.isEmpty()) {
 				reportService.delete(rooms.getId());
 			}
 		}catch(NullPointerException e) {}
 		
 		Set<Device> devices = rooms.getDevices();
-		if(devices.size()<=0) {
+		if(devices.isEmpty()) {
 			roomService.deleteRoom (rooms);
 			return new ResponseEntity<>(HttpStatus.OK);
 		}else {

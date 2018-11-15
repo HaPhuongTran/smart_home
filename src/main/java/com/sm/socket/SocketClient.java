@@ -24,7 +24,7 @@ public class SocketClient {
 			OutputStream output = socket.getOutputStream();
 			PrintWriter pw = new PrintWriter(output);
 			JSONObject obj = new JSONObject();
-			obj.put("state", true);
+			obj.put("state", false);
 			obj.put("temp", 30);
 			String a = obj.toString();
 			System.out.print(a);
@@ -37,5 +37,4 @@ public class SocketClient {
 			e.printStackTrace();
 		}
 	}
-
 }
