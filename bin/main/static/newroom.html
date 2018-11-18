@@ -90,7 +90,7 @@
     </div>
   </div>
 </div>
-<div class="modal fade top control" id="control" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+<div class="modal fade top control" id="control" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-backdrop = "static">
   <div class="modal-dialog" role="document">
     <div class="modal-content">
       <div class="modal-body">
@@ -104,7 +104,7 @@
                   <select class="browser-default custom-select select-Device" style="width:50%;">
                   </select><br><br>
                   <a class="btn btn-ok-control">OK</a>
-                  <a class="btn btn-auto">Auto</a>
+                  <a class="btn btn-auto" data-toggle="modal" data-target="#autoDevice">Auto</a>
                   <a class="btn" data-dismiss="modal">close</a>
                 </div>
               </div>
@@ -123,11 +123,13 @@
   </div>
 </div>
 
-<div class="modal fade AirConditionModel" id="AirConditionControl" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true"></div>
+<div class="modal fade AirConditionModel" id="AirConditionControl" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-backdrop = "static"></div>
 
-<div class="modal fade DehumidifierModel" id="DehumidifierControl" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true"></div>
+<div class="modal fade DehumidifierModel" id="DehumidifierControl" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-backdrop = "static"></div>
 
-<div class="modal fade HeatingEquipmentModel" id="HeatingEquipmentrControl" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true"></div>
+<div class="modal fade HeatingEquipmentModel" id="HeatingEquipmentrControl" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-backdrop = "static"></div>
+
+<div class="modal fade autoDevice" id="autoDevice" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true" data-backdrop = "static"></div>
 
 <div class="container">
   <div class="row row-room">

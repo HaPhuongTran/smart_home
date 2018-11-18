@@ -14,6 +14,7 @@
  	$(".AirConditionModel").load("ControlAirConditioner.html");
  	$(".DehumidifierModel").load("ControlDehumidifier.html");
  	$(".HeatingEquipmentModel").load("ControlHeatingEquipment.html");
+ 	$(".autoDevice").load("model_auto.html");
  	var hasStorage = ("sessionStorage" in window && window.sessionStorage),
 		storageKey = "sessionUser",
     	now, expiration, dataStorage = false;
@@ -23,9 +24,9 @@
     addHomeToList(getUser(getUserName).home, counthome);
     
     loadRoomOfHome(getHome(getHomeName).rooms);
-    // setvalue();
     addRoom();
     choiceDeviceControl();
+    autoControl();
 
     for(var count =0; count<=counthome; count++){
     	swichHome(count);
@@ -76,84 +77,248 @@
     	}
     }
 
+    function autoControl(){
+    	$(".btn-auto").click(function(){
+    		$(".autoTitle").text($(".room-device").text())
+    		if(!$(".Autocheckbox").prop("checked")){
+    			$('.body_tablecontrol').css('display','none');
+    			listenOnOffAuto();
+    		}
+    	})
+    }
+    var idCompare;
+    var listidCompare = [];
+    function listenOnOffAuto(){
+    	$(".Autocheckbox").click(function(){
+    		var TempSpinner  = $( "#spinner-temp" ).spinner();
+    		var HumiSpinner = $( "#spinner-humi" ).spinner();
+    		var temp = parseInt(TempSpinner[0].value);
+    		var humi = parseInt(HumiSpinner[0].value);
+    		if(!$(".Autocheckbox").prop("checked")){
+    			$('.body_tablecontrol').css('display','none');
+    			setHumiTempUser($(".room-device").text(),"","");
+    			if(listidCompare != undefined){
+    				for(var i =0; i<listidCompare.length; i++){
+    					clearInterval(listidCompare[i]);
+    				}
+    			}
+    		}else{
+    			if(!isNaN(temp) && !isNaN(humi)){
+	    			idCompare = setInterval(function(){
+	    				compareValue($(".room-device").text(),temp, humi);
+	    			}, 10*1000)
+	    			listidCompare.push(idCompare);
+    			}
+    			$('.body_tablecontrol').css('display','block');
+    			setHumiTempUser($(".room-device").text(),temp, humi);
+    			$(".btn-saveChange").click(function(){
+    				saveChange();
+    			})
+    			
+    		}
+    	})
+    }
+
+    function saveChange(){
+    	var TempSpinner  = $( "#spinner-temp" ).spinner();
+		var HumiSpinner = $( "#spinner-humi" ).spinner();
+		var temp = parseInt(TempSpinner[0].value);
+		var humi = parseInt(HumiSpinner[0].value);
+		if(!isNaN(temp) && !isNaN(humi)){
+			idCompare = setInterval(function(){
+				compareValue($(".room-device").text(),temp, humi);
+			}, 10*1000);
+			listidCompare.push(idCompare);
+		}
+		setHumiTempUser($(".room-device").text(),temp, humi);
+    }
+
+    function getIPAndName(typeDevice){
+    	var listroom  = homeinfo.rooms;
+		var listDevice, ipdevice, nameDevice, jsonIPName;
+		for(var i =0; i<listroom.length; i++){
+			if(listroom[i].nameRoom === $(".room-device").text()){
+				listDevice = listroom[i].devices;
+				break;
+			}
+		}
+		for(var j = 0; j<listDevice.length;j++){
+			if(listDevice[j].type === typeDevice){
+				ipdevice = listDevice[j].ip;
+				nameDevice = listDevice[j].nameDevice;
+				jsonIPName = {ip:ipdevice, name:nameDevice};
+				break;
+			}
+		}
+		return jsonIPName;
+    }
+
+    function compareValue(tagset, temp, humi){
+		if(parseInt(getTemperatureIn(tagset)) > parseInt(getTemperatureUser(tagset))){
+			if(!$(".ACcheckbox").prop("checked")){
+				var state = true;
+				var ipName = getIPAndName("Air-Conditioner");
+				var mode = $("input[name='modeair']:checked").val();
+				var fan_level = $( ".fan-air option:selected" ).text();
+				var data = {state:state, mode:mode, temp:temp, time: 0, fanLevel:fan_level, ip:ipName.ip, nameDevice:ipName.name};
+				$("#spinner-temperature").val(getTemperatureUser(tagset));
+				$("#spinner-timer").val(0);
+				sentDataToSocket(data);
+				$(".ACcheckbox").prop('checked', true);
+			}
+			if($(".ACcheckbox").prop("checked")){
+				$("#spinner-temperature").val(getTemperatureUser(tagset));
+				$("#spinner-timer").val(0);
+			}
+
+			if($(".HEcheckbox").prop("checked")){
+				var state = false;
+				var ipNameHeat = getIPAndName("Heating Equipment");
+				var data = {state:state, ip:ipNameHeat.ip, nameDevice:ipNameHeat.name};
+				sentDataToSocket(data);
+				$(".HEcheckbox").prop('checked', false);
+			}
+		}else if(parseInt(getTemperatureIn(tagset)) < parseInt(getTemperatureUser(tagset))){
+			if($(".ACcheckbox").prop("checked")){
+				var state = false;
+				var ipName = getIPAndName("Air-Conditioner");
+				var data = {state:state, ip:ipName.ip, nameDevice:ipName.name};
+				sentDataToSocket(data);
+				$(".ACcheckbox").prop('checked', false);
+			}
+			if(!$(".HEcheckbox").prop("checked")){
+				var state = true;
+				var ipNameHeat = getIPAndName("Heating Equipment");
+				var fan_level = $( ".fan-heat option:selected" ).text();
+				var data = {state:state, fanLevel:fan_level, ip:ipNameHeat.ip, nameDevice:ipNameHeat.name};
+				$("#spinner-HeatingEquipmentr").val(getTemperatureUser(tagset));
+				$("#HeatingEquipmentr-timer").val(0);
+				sentDataToSocket(data);
+				$(".HEcheckbox").prop('checked', true);
+			}
+			if($(".HEcheckbox").prop("checked")){
+				$("#spinner-HeatingEquipmentr").val(getTemperatureUser(tagset));
+				$("#HeatingEquipmentr-timer").val(0);
+			}
+		}
+		if(parseInt(getHumidityIn(tagset)) != parseInt(getHumidityUser(tagset))){
+			if(!$(".DHcheckbox").prop("checked")){
+				var state = true;
+				var ipNameDehumi = getIPAndName("Dehumidifier");
+				var fan_level = $( ".fan-dehumi option:selected" ).text();
+				var data = {state:state, ip:ipNameDehumi.ip, nameDevice:ipNameDehumi.name};
+				$("#spinner-Dehumidifier").val(getHumidityUser(tagset));
+				$("#Dehumidifier-timer").val(0);
+				sentDataToSocket(data);
+				$(".DHcheckbox").prop('checked', true);
+			}
+		}
+	}
+
+    function setHumiTempUser(roomname, tempvalue, humivalue){
+    	setTemperatureUser(roomname,tempvalue);
+    	setHumidityUser(roomname,humivalue);
+    }
+
     function choiceDeviceControl(){
     	$(".btn-ok-control").click(function(){
     		var typeDevice = $( ".select-Device option:selected" ).val();
     		var nameDevice = $( ".select-Device option:selected" ).text();
     		var ipDevice = $(".select-Device option:selected").attr("id");
     		if(typeDevice === "Air-Conditioner"){
+    			$(".btn-setcontrolAir").unbind( "click" );
     			$(".nameAirConditioner").text(nameDevice);
     			$("#AirConditionControl").modal();
     			var spinerTemp = $( "#spinner-temperature" ).spinner();
     			var spinerTime = $( "#spinner-timer" ).spinner();
-    			getvalueAirSentToSocketServer(spinerTemp, spinerTime, nameDevice, ipDevice);
+    			$(".btn-setcontrolAir").bind( "click", function(){
+					getvalueAirSentToSocketServer(spinerTemp, spinerTime, nameDevice, ipDevice);
+				} );
     		}else if(typeDevice === "Dehumidifier"){
+    			$(".btn-setcontrolDehumi").unbind( "click" );
     			$(".nameDehumidifier").text(nameDevice);
     			$("#DehumidifierControl").modal();
-    			var spinerDehumi = $( "#spinner-Dehumidifier" ).spinner();
+    			var spinerDehumi = $("#spinner-Dehumidifier").spinner();
     			var spinerTime = $( "#Dehumidifier-timer" ).spinner();
-    			getvalueDehumiSentToSocketServer(spinerDehumi, spinerTime, nameDevice, ipDevice);
+    		
+    			$(".btn-setcontrolDehumi").bind( "click", function(){
+					getvalueDehumiSentToSocketServer(spinerDehumi, spinerTime, nameDevice, ipDevice);
+				} );
     		}else if(typeDevice === "Heating"){
+    			$(".btn-setcontrolHeat").unbind( "click" );
     			$(".nameHeatingEquipmentr").text(nameDevice);
     			$("#HeatingEquipmentrControl").modal();
     			var spinerHeat  = $( "#spinner-HeatingEquipmentr" ).spinner();
     			var spinerTime = $( "#HeatingEquipmentr-timer" ).spinner();
-    			getvalueHeatSentToSocketServer(spinerHeat, spinerTime, nameDevice, ipDevice);
+    			
+    			$(".btn-setcontrolHeat").bind( "click", function(){
+					getvalueHeatSentToSocketServer(spinerHeat, spinerTime, nameDevice, ipDevice);
+				} );
     		}
     	})
     }
     function getvalueDehumiSentToSocketServer(spinerDevice, spinerTime, nameDevice, ipDevice){
-    	$(".btn-setcontrolDehumi").click(function(){
-    		var data;
-    		var state = false;
-    		var humidity, time, fan_level;
-			if($(".DHcheckbox").prop("checked") == true){
-				state = true;
-    		}
-			temp = parseInt(spinerDevice[0].value);
-			time = parseInt(spinerTime[0].value);
-			fan_level = $( ".fan-air option:selected" ).text();
-			data = {state:state, humi:humidity, time: time, fanLevel:fan_level, ip:ipDevice, nameDevice:nameDevice};
-			sentDataToSocket(data);
-			$(".btn-setcontrolDehumi").unbind( "click" );
-			return;
-    	})
+		var data;
+		var state = false;
+		var humidity, time, fan_level;
+		if($(".DHcheckbox").prop("checked") == true){
+			state = true;
+		}
+		temp = parseInt(spinerDevice[0].value);
+		time = parseInt(spinerTime[0].value);
+		fan_level = $( ".fan-dehumi option:selected" ).text();
+		data = {state:state, humi:humidity, time: time, fanLevel:fan_level, ip:ipDevice, nameDevice:nameDevice};
+		sentDataToSocket(data);
+		if(time>0 && state){
+			data = {state:false, humi:humidity, time: time, fanLevel:fan_level, ip:ipDevice, nameDevice:nameDevice};
+			timeToCloseDevice(time, data, "DHcheckbox");
+		}
+		return;
     }
 
     function getvalueHeatSentToSocketServer(spinerDevice, spinerTime,nameDevice, ipDevice){
-    	$(".btn-setcontrolHeat").click(function(){
-    		var data = [];
-    		var state = false;
-    		var temp, time, fan_level;
-			if($(".HEcheckbox").prop("checked") == true){
-				state = true;
-    		}
-			temp = parseInt(spinerDevice[0].value);
-			time = parseInt(spinerTime[0].value);
-			fan_level = $( ".fan-air option:selected" ).text();
-			data = {state:state,temp:temp, time: time, fanLevel:fan_level, ip:ipDevice, nameDevice:nameDevice};
-			sentDataToSocket(data);
-			$(".btn-setcontrolHeat").unbind( "click" );
-			return;
-    	})
+		var data = [];
+		var state = false;
+		var temp, time, fan_level;
+		if($(".HEcheckbox").prop("checked") == true){
+			state = true;
+		}
+		temp = parseInt(spinerDevice[0].value);
+		time = parseInt(spinerTime[0].value);
+		fan_level = $( ".fan-heat option:selected" ).text();
+		data = {state:state,temp:temp, time: time, fanLevel:fan_level, ip:ipDevice, nameDevice:nameDevice};
+		sentDataToSocket(data);
+		if(time>0 && state){
+			data = {state:false,temp:temp, time: time, fanLevel:fan_level, ip:ipDevice, nameDevice:nameDevice};
+			timeToCloseDevice(time, data, "HEcheckbox");
+		}
+		return;
     }
     function getvalueAirSentToSocketServer(spinerDevice, spinerTime, nameDevice, ipDevice){
-    	$(".btn-setcontrolAir").click(function(){
-    		var state = false;
-    		var data;
-    		var mode, temp, time, fan_level;
-			if($(".ACcheckbox").prop("checked") == true){
-				state = true;
-    		}
-			mode = $("input[name='modeair']:checked").val();
-			temp = parseInt(spinerDevice[0].value);
-			time = parseInt(spinerTime[0].value);
-			fan_level = $( ".fan-air option:selected" ).text();
-			data = {state:state, mode:mode, temp:temp, time: time, fanLevel:fan_level, ip:ipDevice, nameDevice:nameDevice};
-			sentDataToSocket(data);
-			$(".btn-setcontrolAir").unbind( "click" );
-			return;
-    	})
+		var state = false;
+		var data;
+		var mode, temp, time, fan_level;
+		if($(".ACcheckbox").prop("checked") == true){
+			state = true;
+		}
+		mode = $("input[name='modeair']:checked").val();
+		temp = parseInt(spinerDevice[0].value);
+		time = parseInt(spinerTime[0].value);
+		fan_level = $( ".fan-air option:selected" ).text();
+		data = {state:state, mode:mode, temp:temp, time: time, fanLevel:fan_level, ip:ipDevice, nameDevice:nameDevice};
+		sentDataToSocket(data);
+		if(time>0 && state){
+			data = {state:false, mode:mode, temp:temp, time: 0, fanLevel:fan_level, ip:ipDevice, nameDevice:nameDevice};
+			timeToCloseDevice(time, data, "ACcheckbox");
+		}
+		return;
+    }
+
+    function timeToCloseDevice(time, datadevice, typeDevice){
+    	setTimeout(function(){
+		    sentDataToSocket(datadevice);
+		    $("."+typeDevice).prop('checked', false);
+		}, time*60*1000);
     }
 
     function sentDataToSocket(dataDevice){
@@ -213,7 +378,6 @@
 		    }
     		detailRoom(countroom);
     		controlDevice(countroom);
-    		// setHumiTempForRoom(countroom);
     		deleteRoom(countroom,listroom[countroom].nameRoom);
     		viewReport(countroom);
     	}
@@ -266,7 +430,6 @@
 			getInfoCreateRoom(saveRoom(roomname,countroom), roomname);
 			detailRoom(countroom);
 			controlDevice(countroom);
-			// setHumiTempForRoom(countroom);
 			deleteRoom(countroom,roomname);
 			viewReport(countroom);
 			countroom++;
@@ -359,16 +522,16 @@
 		return $(".humidityIn"+tagset).text();
 	}
 //////////////////////////////////////////////////////////////////////////////////
-	function setHumidityUser(tagset){
-		$(".humidityUser"+tagset).text($(".setHumidity").val());
+	function setHumidityUser(tagset, value){
+		$(".humidityUser"+tagset).text(value);
 	}
 
 	function getHumidityUser(tagset){
 		return $(".humidityUser"+tagset).text();;
 	}
 
-	function setTemperatureUser(tagset){
-		$(".tempertaureUser"+tagset).text($(".setTemperature").val());
+	function setTemperatureUser(tagset, value){
+		$(".tempertaureUser"+tagset).text(value);
 	}
 
 	function getTemperatureUser(tagset){
@@ -616,24 +779,6 @@
 		})
 	}
 
-	// function setHumiTempForRoom(roomcount){
-	// 	var Room = getRoom(roomcount);
-	// 	if(Room.humitemp != null){
-	// 		$(".tempertaureUser"+$(".nameroom"+roomcount).text()).text(Room.humitemp.temp);
-	// 		$(".humidityUser"+$(".nameroom"+roomcount).text()).text(Room.humitemp.humi)
-	// 	}
-	// 	// conditionComparevalue($(".nameroom"+roomcount).text());
-	// 	$(".set-btn"+roomcount).click(function(){
-	// 		var RoomAfter = getRoom(roomcount);
-	// 		$(".roomNameSet").text($(".nameroom"+roomcount).text());
-	// 		setHumiAndTemp();
-	// 		if(RoomAfter.humitemp != null && RoomAfter.humitemp != ""){
-	// 			setValueForForm(Room.humitemp.id, RoomAfter.humitemp.humi, RoomAfter.humitemp.temp);
-	// 		}else{
-	// 			setValueForForm(0, 0, 0);
-	// 		}
-	// 	})
-	// }
 	function saveInfoToReport(counttag){
     	var temp = getTemperatureIn(counttag);
     	var humi = getHumidityIn(counttag);
@@ -665,24 +810,7 @@
 		$(".setHumidity").val(humi);
 		$(".setTemperature").val(temp);
 	}
-	// function conditionComparevalue(roomName){
-	// 	var tempUser = $(".tempertaureUser"+roomName).text();
-	// 	if( tempUser != 0 && tempUser != "" ){
-	// 		$("#grid").remove();
-	// 		var idsetInterval = setInterval(function(){
-	// 			compareValue(roomName);
-	// 		},15000);
-	// 		listIdInterval.push({roomName:roomName, id:idsetInterval});
-	// 	}else{
-	// 		if(listIdInterval != undefined){
-	// 			for(var i = 0; i<listIdInterval.length; i++){
-	// 				if(listIdInterval[i].roomName === roomName);
-	// 				clearInterval(listIdInterval[i].id);
-	// 				listIdInterval.splice(this,1);
-	// 			}
-	// 		}
-	// 	}
-	// }
+	
 	function getRoom(roomcount){
 		$.ajax({
 			async : false,
@@ -726,51 +854,6 @@
 		}
 		$("."+checkHumiOrTemp).val(value);
 	}
-
-	// function setvalue(){
-	// 	$(".btn-ok").click(function(){
-	// 		var tagset = $(".roomNameSet").text();
-	// 		setHumidityUser(tagset);
-	// 		setTemperatureUser(tagset);
-	// 		$.ajax({
-	// 	    	async : false,
-	// 			method: "post",
-	// 			data: JSON.stringify({ id: parseInt($(".idHumiTemp").val()), temp:parseInt(getTemperatureUser(tagset)), humi: parseInt(getHumidityUser(tagset))}),
-	// 			contentType: "application/json",
-	// 			url: "http://localhost/smarthome/savehumitempuser/"+tagset+"/" + $(".thishome").text()
-	// 		}).done(function(data, textStatus, xhr){
-	// 			status_create = xhr.status;
-	// 		}).fail(function(data, textStatus, xhr){
-	// 			status_create = data.status;
-	// 		});
-	// 		conditionComparevalue(tagset);
-
-	// 	})
-	// }
-	function changeValue(typeDevice, state, tagset){
-		// var listRoom = homeinfo.rooms;
-		// var isDeviceExits = false;
-		// for(var i =0; i<listRoom.length; i++){
-		// 	if(listRoom[i].nameRoom === tagset){
-		// 		var deviceSourceschel = listRoom[i].devices;
-		// 		for(var j = 0; j<deviceSourceschel.length; j++){
-		// 			if(deviceSourceschel[j].type === typeDevice){
-		// 				$(".sui-table tbody tr").each(function(){
-		// 					var type = $(this).find("td").eq(4).text();
-		// 					if(type === typeDevice && $(".detailroomname").text()=== tagset){
-		// 						$(this).find("td").eq(3).text(state);
-		// 						return;
-		// 					}
-		// 				})
-		// 				showToastr(typeDevice + " of room " + tagset + " is " + state, "info");
-		// 				return;
-		// 			}
-		// 		}
-		// 		showToastr(tagset + " is not exits " + typeDevice, "warning");
-		// 		return;
-		// 	}
-		// }
-	}
 	function showToastr(message, typetoastr){
 		toastr.options = {
               "closeButton": true,
@@ -785,25 +868,6 @@
         	toastr.info(message);
         }
 	}
-	function compareValue(tagset){
-		// if(parseInt(getTemperatureIn(tagset)) > parseInt(getTemperatureUser(tagset))){
-		// 	changeValue("Air-Conditioner", "on", tagset);
-		// 	changeValue("Heating Equipment", "off", tagset);
-
-		// }else{
-		// 	changeValue("Air-Conditioner", "off", tagset);
-		// 	changeValue("Heating Equipment", "on", tagset);
-		// }
-		// if(parseInt(getHumidityIn(tagset)) > parseInt(getHumidityUser(tagset))){
-		// 	changeValue("Dehumidifier", "on", tagset);
-		// 	changeValue("Nebulizer", "off", tagset);
-		// }else{
-		// 	changeValue("Dehumidifier", "off", tagset);
-		// 	changeValue("Nebulizer", "on", tagset);
-		// }
-	}
-
-
 
 	function appendRoom(roomcount, roomname){
 		$(".row-room").append(

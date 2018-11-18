@@ -6,49 +6,34 @@ import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.net.URL;
-import java.net.URLConnection;
 import java.util.Scanner;
-
-import org.json.JSONObject;
 
 public class SocketServer {
 	private static int defaultPort = 3333;
 
-	public static void main(String[] args) {
-	
-		try {
-			ServerSocket serverSocket = new ServerSocket(defaultPort);
-			while(true) {
+	public static void main(String[] args) throws IOException {
+		try(ServerSocket serverSocket = new ServerSocket(defaultPort)){
+			while(serverSocket != null) {
+				Socket socket = null;
 				try {
-					Socket socket = serverSocket.accept();
+					socket = serverSocket.accept();
+					System.out.println("A new client is connected : " + socket);
+					
 					InputStream input = socket.getInputStream();
 					OutputStream output = socket.getOutputStream();
-					Scanner sn = new Scanner(input);
+					
+					Scanner scanner = new Scanner(input);
 					PrintWriter printWriter = new PrintWriter(output);
-					String content = sn.nextLine();
-					JSONObject json = new JSONObject(content);
-					if((boolean) json.get("state")) {
-						printWriter.println(json.get("nameDevice")+" with ip: " + json.get("ip") + " is ON");
-						printWriter.flush();
-					}else {
-						printWriter.println(json.get("nameDevice")+" with ip: " + json.get("ip") + " is OFF");
-						printWriter.flush();
-					}
-					//Begin
-//					URL url = new URL("http://localhost/login");
-//					URLConnection conn = url.openConnection();
-//					conn.setDoOutput(true);
-				    //End
-					socket.close();
+					
+					System.out.println("Assigning new thread for this client"); 
+					
+					Thread clientThreat = new ClientHandler(socket, scanner, printWriter);
+					clientThreat.start();
 				}catch(IOException e) {
+					socket.close();
 					System.err.println("Connect Error: " + e);
 				}
 			}
-			
-		}catch(IOException e) {
-			System.err.print("Can't create server" + e);
 		}
 	}
-
 }

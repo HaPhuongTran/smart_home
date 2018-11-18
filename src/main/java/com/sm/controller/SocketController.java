@@ -7,12 +7,11 @@ import java.io.PrintWriter;
 import java.net.Socket;
 import java.util.Scanner;
 
-import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.sm.entity.InfoDevice;
@@ -20,13 +19,12 @@ import com.sm.entity.InfoDevice;
 @CrossOrigin
 @RequestMapping("/smarthome")
 public class SocketController {
-	final int serverPort = 3333;
-	final String ipServer = "127.0.0.1";
+	private static final int SERVERPORT = 3333;
+	private static final String IP = "127.0.0.1";
 	
-	@RequestMapping(value = "/control", method = RequestMethod.POST)
-	public String ControlDevice(@RequestBody InfoDevice deviceInfo){
-		try {
-			Socket socket = new Socket(ipServer, serverPort);
+	@PostMapping(value = "/control")
+	public String controlDevice(@RequestBody InfoDevice deviceInfo){
+		try(Socket socket = new Socket(IP, SERVERPORT);) {
 			InputStream input = socket.getInputStream();
 			OutputStream output = socket.getOutputStream();
 			PrintWriter printWriter = new PrintWriter(output);
@@ -39,14 +37,12 @@ public class SocketController {
 			deviceInfoSentToServer.put("time", deviceInfo.getTime());
 			deviceInfoSentToServer.put("ip",deviceInfo.getIp());
 			deviceInfoSentToServer.put("nameDevice", deviceInfo.getNameDevice());
-			String a = deviceInfoSentToServer.toString();
 			printWriter.println(deviceInfoSentToServer.toString());
 			printWriter.flush();
 			
 			Scanner sn = new Scanner(input);
 			String data = sn.nextLine();
-			System.out.println(data);
-			socket.close();
+			sn.close();
 			return data;
 		}catch(IOException e) {
 			return e.toString();
