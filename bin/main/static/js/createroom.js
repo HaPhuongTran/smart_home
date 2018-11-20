@@ -9,6 +9,7 @@
 		listTemp = [''];
  	var listIdIntervalSaveDevice = [];
  	var roominfo, recortInfo;
+ 	var idIntervalincreaseOrDecrease;
  	$(".insideReportmodel").load("modal_report.html");
  	$(".createroom").load("model_createroom.html");
  	$(".AirConditionModel").load("ControlAirConditioner.html");
@@ -130,7 +131,11 @@
 			}, 10*1000);
 			listidCompare.push(idCompare);
 		}
-		setHumiTempUser($(".room-device").text(),temp, humi);
+		if(!$(".Autocheckbox").prop("checked")){
+			setHumiTempUser($(".room-device").text(),"","");
+		}else{
+			setHumiTempUser($(".room-device").text(),temp, humi);
+		}
     }
 
     function getIPAndName(typeDevice){
@@ -154,10 +159,12 @@
     }
 
     function compareValue(tagset, temp, humi){
+    	var nameroom = $(".room-device").text();
+    	var iptemp = getIdSensor(tagset, "Temperature Device");
+		var ipName = getIPAndName("Air-Conditioner");
 		if(parseInt(getTemperatureIn(tagset)) > parseInt(getTemperatureUser(tagset))){
 			if(!$(".ACcheckbox").prop("checked")){
 				var state = true;
-				var ipName = getIPAndName("Air-Conditioner");
 				var mode = $("input[name='modeair']:checked").val();
 				var fan_level = $( ".fan-air option:selected" ).text();
 				var data = {state:state, mode:mode, temp:temp, time: 0, fanLevel:fan_level, ip:ipName.ip, nameDevice:ipName.name};
@@ -165,10 +172,25 @@
 				$("#spinner-timer").val(0);
 				sentDataToSocket(data);
 				$(".ACcheckbox").prop('checked', true);
+				for(var i = 0; i<listIdIntervalSaveDevice.length; i++){
+					if(listIdIntervalSaveDevice[i].nameroom === nameroom &&listIdIntervalSaveDevice[i].ipDevice === iptemp){
+						clearInterval(listIdIntervalSaveDevice[i].id);
+						listIdIntervalSaveDevice.splice(i,1);
+						break;
+					}
+				}
+				increaseOrDecreaseValue(getTemperatureIn(tagset), 1, parseInt(getTemperatureUser(tagset)), "ACcheckbox", tagset,ipName.name, ipName.ip, iptemp, "tempertaureIn");
 			}
-			if($(".ACcheckbox").prop("checked")){
+			if($(".ACcheckbox").prop("checked")){//Debug and review here
 				$("#spinner-temperature").val(getTemperatureUser(tagset));
 				$("#spinner-timer").val(0);
+				for(var i =0; i<listincreaseOrDecreaseValue.length; i++){
+					if(listincreaseOrDecreaseValue[i].typeDevice === "ACcheckbox"){
+						clearInterval(listincreaseOrDecreaseValue[i].id);
+						listincreaseOrDecreaseValue.splice(i,1);
+					}
+				}
+				increaseOrDecreaseValue(getTemperatureIn(tagset), 1, parseInt(getTemperatureUser(tagset)), "ACcheckbox", tagset,ipName.name, ipName.ip, iptemp, "tempertaureIn");
 			}
 
 			if($(".HEcheckbox").prop("checked")){
@@ -176,6 +198,12 @@
 				var ipNameHeat = getIPAndName("Heating Equipment");
 				var data = {state:state, ip:ipNameHeat.ip, nameDevice:ipNameHeat.name};
 				sentDataToSocket(data);
+				for(var i =0; i<listincreaseOrDecreaseValue.length; i++){
+					if(listincreaseOrDecreaseValue[i].typeDevice === "HEcheckbox"){
+						clearInterval(listincreaseOrDecreaseValue[i].id);
+						listincreaseOrDecreaseValue.splice(i,1);
+					}
+				}
 				$(".HEcheckbox").prop('checked', false);
 			}
 		}else if(parseInt(getTemperatureIn(tagset)) < parseInt(getTemperatureUser(tagset))){
@@ -225,14 +253,22 @@
     		var typeDevice = $( ".select-Device option:selected" ).val();
     		var nameDevice = $( ".select-Device option:selected" ).text();
     		var ipDevice = $(".select-Device option:selected").attr("id");
+    		var nameroom = $(".room-device").text();
     		if(typeDevice === "Air-Conditioner"){
     			$(".btn-setcontrolAir").unbind( "click" );
     			$(".nameAirConditioner").text(nameDevice);
     			$("#AirConditionControl").modal();
     			var spinerTemp = $( "#spinner-temperature" ).spinner();
     			var spinerTime = $( "#spinner-timer" ).spinner();
+    	
     			$(".btn-setcontrolAir").bind( "click", function(){
-					getvalueAirSentToSocketServer(spinerTemp, spinerTime, nameDevice, ipDevice);
+    				for(var i =0; i<listincreaseOrDecreaseValue.length; i++){
+    					if(listincreaseOrDecreaseValue[i].typeDevice === "ACcheckbox" || listincreaseOrDecreaseValue[i].typeDevice === "HEcheckbox"){
+    						clearInterval(listincreaseOrDecreaseValue[i].id);
+    						listincreaseOrDecreaseValue.splice(i,1);
+    					}
+    				}
+					getvalueAirSentToSocketServer(spinerTemp, spinerTime, nameDevice, ipDevice, nameroom);
 				} );
     		}else if(typeDevice === "Dehumidifier"){
     			$(".btn-setcontrolDehumi").unbind( "click" );
@@ -240,9 +276,15 @@
     			$("#DehumidifierControl").modal();
     			var spinerDehumi = $("#spinner-Dehumidifier").spinner();
     			var spinerTime = $( "#Dehumidifier-timer" ).spinner();
-    		
+    			
     			$(".btn-setcontrolDehumi").bind( "click", function(){
-					getvalueDehumiSentToSocketServer(spinerDehumi, spinerTime, nameDevice, ipDevice);
+    				for(var i =0; i<listincreaseOrDecreaseValue.length; i++){
+    					if(listincreaseOrDecreaseValue[i].typeDevice === "DHcheckbox"){
+    						clearInterval(listincreaseOrDecreaseValue[i].id);
+    						listincreaseOrDecreaseValue.splice(i,1);
+    					}
+    				}
+					getvalueDehumiSentToSocketServer(spinerDehumi, spinerTime, nameDevice, ipDevice, nameroom);
 				} );
     		}else if(typeDevice === "Heating"){
     			$(".btn-setcontrolHeat").unbind( "click" );
@@ -250,23 +292,45 @@
     			$("#HeatingEquipmentrControl").modal();
     			var spinerHeat  = $( "#spinner-HeatingEquipmentr" ).spinner();
     			var spinerTime = $( "#HeatingEquipmentr-timer" ).spinner();
-    			
+    		
     			$(".btn-setcontrolHeat").bind( "click", function(){
-					getvalueHeatSentToSocketServer(spinerHeat, spinerTime, nameDevice, ipDevice);
+    				for(var i =0; i<listincreaseOrDecreaseValue.length; i++){
+						if(listincreaseOrDecreaseValue[i].typeDevice === "ACcheckbox" || listincreaseOrDecreaseValue[i].typeDevice === "HEcheckbox"){
+							clearInterval(listincreaseOrDecreaseValue[i].id);
+							listincreaseOrDecreaseValue.splice(i,1);
+						}
+					}
+					getvalueHeatSentToSocketServer(spinerHeat, spinerTime, nameDevice, ipDevice, nameroom);
 				} );
     		}
     	})
     }
-    function getvalueDehumiSentToSocketServer(spinerDevice, spinerTime, nameDevice, ipDevice){
+    function getvalueDehumiSentToSocketServer(spinerDevice, spinerTime, nameDevice, ipDevice, nameroom){
 		var data;
 		var state = false;
 		var humidity, time, fan_level;
+		var iphumi = getIdSensor(nameroom, "Humidity Device");
+		var humiIn = getHumidityIn(nameroom);
+		humidity = parseInt(spinerDevice[0].value);
+		time = parseFloat(spinerTime[0].value);
+		fan_level = $( ".fan-dehumi option:selected" ).text();
 		if($(".DHcheckbox").prop("checked") == true){
 			state = true;
+			if(listIdIntervalSaveDevice != undefined && listIdIntervalSaveDevice.length>0){
+				for(var i = 0; i<listIdIntervalSaveDevice.length; i++){
+					if(listIdIntervalSaveDevice[i].nameroom === nameroom &&listIdIntervalSaveDevice[i].ipDevice === iphumi){
+						clearInterval(listIdIntervalSaveDevice[i].id);
+						listIdIntervalSaveDevice.splice(i,1);
+						break;
+					}
+				}
+			}
+			if(humiIn>humidity){
+				increaseOrDecreaseValue(parseInt(humiIn), 1, humidity, "DHcheckbox", nameroom, nameDevice, ipDevice, iphumi, "humidityIn");
+			}else{
+				increaseOrDecreaseValue(parseInt(humiIn), 0, humidity, "DHcheckbox", nameroom, nameDevice, ipDevice, iphumi, "humidityIn");
+			}
 		}
-		temp = parseInt(spinerDevice[0].value);
-		time = parseInt(spinerTime[0].value);
-		fan_level = $( ".fan-dehumi option:selected" ).text();
 		data = {state:state, humi:humidity, time: time, fanLevel:fan_level, ip:ipDevice, nameDevice:nameDevice};
 		sentDataToSocket(data);
 		if(time>0 && state){
@@ -276,16 +340,32 @@
 		return;
     }
 
-    function getvalueHeatSentToSocketServer(spinerDevice, spinerTime,nameDevice, ipDevice){
+    function getvalueHeatSentToSocketServer(spinerDevice, spinerTime,nameDevice, ipDevice, nameroom){
 		var data = [];
 		var state = false;
 		var temp, time, fan_level;
+		var iptemp = getIdSensor(nameroom, "Temperature Device");
+		var tempIn = getTemperatureIn(nameroom);
+		temp = parseInt(spinerDevice[0].value);
+		time = parseFloat(spinerTime[0].value);
+		fan_level = $( ".fan-heat option:selected" ).text();
 		if($(".HEcheckbox").prop("checked") == true){
 			state = true;
+			if(listIdIntervalSaveDevice != undefined && listIdIntervalSaveDevice.length>0){
+				for(var i = 0; i<listIdIntervalSaveDevice.length; i++){
+					if(listIdIntervalSaveDevice[i].nameroom === nameroom &&listIdIntervalSaveDevice[i].ipDevice === iptemp){
+						clearInterval(listIdIntervalSaveDevice[i].id);
+						listIdIntervalSaveDevice.splice(i,1);
+						break;
+					}
+				}
+			}
+			if(tempIn>temp){
+				increaseOrDecreaseValue(parseInt(tempIn), 1, temp, "HEcheckbox", nameroom, nameDevice, ipDevice, iptemp, "tempertaureIn");
+			}else{
+				increaseOrDecreaseValue(parseInt(tempIn), 0, temp, "HEcheckbox", nameroom, nameDevice, ipDevice, iptemp, "tempertaureIn");
+			}
 		}
-		temp = parseInt(spinerDevice[0].value);
-		time = parseInt(spinerTime[0].value);
-		fan_level = $( ".fan-heat option:selected" ).text();
 		data = {state:state,temp:temp, time: time, fanLevel:fan_level, ip:ipDevice, nameDevice:nameDevice};
 		sentDataToSocket(data);
 		if(time>0 && state){
@@ -294,17 +374,82 @@
 		}
 		return;
     }
-    function getvalueAirSentToSocketServer(spinerDevice, spinerTime, nameDevice, ipDevice){
+    var listincreaseOrDecreaseValue = [];
+    function increaseOrDecreaseValue(value, check, valueDevice, typeDevice, nameroom,nameDevice, ipDevice, iptemp, settext){
+    	if(check === 1){
+    		idIntervalincreaseOrDecrease = setInterval(function(){
+    			value -=1;
+    			$("."+settext+nameroom).text(value);
+    			if(value === valueDevice){
+    				data = {state:false, ip:ipDevice, nameDevice:nameDevice};
+    				for(var i =0; i<listincreaseOrDecreaseValue.length; i++){
+    					if(listincreaseOrDecreaseValue[i].id === idIntervalincreaseOrDecrease){
+    						listincreaseOrDecreaseValue.splice(i,1);
+    					}
+    				}
+    				clearInterval(idIntervalincreaseOrDecrease);
+    				sentDataToSocket(data);
+		    		$("."+typeDevice).prop('checked', false);
+		    		if(typeDevice === "HEcheckbox" || typeDevice === "ACcheckbox"){
+		    			listIdIntervalSaveDevice.push({nameroom:nameroom, id:scheduleTemp(nameroom, parseInt(40000)), ipDevice:iptemp});
+		    		}else {
+		    			listIdIntervalSaveDevice.push({nameroom:nameroom, id:scheduleHumi(nameroom, parseInt(40000)), ipDevice:iptemp});
+		    		}
+    			}
+    		}, 5000);
+    		listincreaseOrDecreaseValue.push({typeDevice:typeDevice, id: idIntervalincreaseOrDecrease});
+    	}
+    	if(check === 0){
+    		idIntervalincreaseOrDecrease = setInterval(function(){
+    			value +=1;
+    			$("."+settext+nameroom).text(value);
+    			if(value === valueDevice){
+    				data = {state:false, ip:ipDevice, nameDevice:nameDevice};
+    				for(var i =0; i<listincreaseOrDecreaseValue.length; i++){
+    					if(listincreaseOrDecreaseValue[i].id === idIntervalincreaseOrDecrease){
+    						listincreaseOrDecreaseValue.splice(i,1);
+    					}
+    				}
+    				clearInterval(idIntervalincreaseOrDecrease);
+    				sentDataToSocket(data);
+		    		$("."+typeDevice).prop('checked', false);
+		    		if(typeDevice === "HEcheckbox" || typeDevice === "ACcheckbox"){
+		    			listIdIntervalSaveDevice.push({nameroom:nameroom, id:scheduleTemp(nameroom, parseInt(40000)), ipDevice:iptemp});
+		    		}else {
+		    			listIdIntervalSaveDevice.push({nameroom:nameroom, id:scheduleHumi(nameroom, parseInt(40000)), ipDevice:iptemp});
+		    		}
+    			}
+    		}, 5000);
+    		listincreaseOrDecreaseValue.push({typeDevice:typeDevice, id: idIntervalincreaseOrDecrease});
+    	}
+    }
+    function getvalueAirSentToSocketServer(spinerDevice, spinerTime, nameDevice, ipDevice, nameroom){
 		var state = false;
 		var data;
 		var mode, temp, time, fan_level;
-		if($(".ACcheckbox").prop("checked") == true){
-			state = true;
-		}
+		var iptemp = getIdSensor(nameroom, "Temperature Device");
+		var tempIn = getTemperatureIn(nameroom);
 		mode = $("input[name='modeair']:checked").val();
 		temp = parseInt(spinerDevice[0].value);
-		time = parseInt(spinerTime[0].value);
+		time = parseFloat(spinerTime[0].value);
 		fan_level = $( ".fan-air option:selected" ).text();
+		if($(".ACcheckbox").prop("checked") == true){
+			state = true;
+		    if(listIdIntervalSaveDevice != undefined && listIdIntervalSaveDevice.length>0){
+				for(var i = 0; i<listIdIntervalSaveDevice.length; i++){
+					if(listIdIntervalSaveDevice[i].nameroom === nameroom &&listIdIntervalSaveDevice[i].ipDevice === iptemp){
+						clearInterval(listIdIntervalSaveDevice[i].id);
+						listIdIntervalSaveDevice.splice(i,1);
+						break;
+					}
+				}
+			}
+			if(tempIn>temp){
+				increaseOrDecreaseValue(parseInt(tempIn), 1, temp, "ACcheckbox", nameroom, nameDevice, ipDevice, iptemp, "tempertaureIn");
+			}else{
+				increaseOrDecreaseValue(parseInt(tempIn), 0, temp, "ACcheckbox", nameroom, nameDevice, ipDevice, iptemp, "tempertaureIn",);
+			}
+		}
 		data = {state:state, mode:mode, temp:temp, time: time, fanLevel:fan_level, ip:ipDevice, nameDevice:nameDevice};
 		sentDataToSocket(data);
 		if(time>0 && state){
@@ -312,6 +457,24 @@
 			timeToCloseDevice(time, data, "ACcheckbox");
 		}
 		return;
+    }
+
+    function getIdSensor(nameroom, typeDevice){
+    	var listroom  = homeinfo.rooms;
+		var listDevice, ip;
+		for(var i =0; i<listroom.length; i++){
+			if(listroom[i].nameRoom === nameroom){
+				listDevice = listroom[i].devices;
+				break;
+			}
+		}
+		for(var j = 0; j<listDevice.length;j++){
+			if(listDevice[j].type === typeDevice){
+				ip = listDevice[j].ip;
+				break;
+			}
+		}
+		return ip;
     }
 
     function timeToCloseDevice(time, datadevice, typeDevice){
@@ -369,10 +532,10 @@
     		if(listDevice.length>0){
     			for(var i = 0; i<listDevice.length; i++){
     				if(listDevice[i].type === "Temperature Device"){
-    					listIdIntervalSaveDevice.push({nameroom:listroom[countroom].nameRoom, id:scheduleTemp(listroom[countroom].nameRoom), idDevice:listDevice[i].id});
+    					listIdIntervalSaveDevice.push({nameroom:listroom[countroom].nameRoom, id:scheduleTemp(listroom[countroom].nameRoom, parseInt(10000)), ipDevice:listDevice[i].ip});
     				}
     				if(listDevice[i].type === "Humidity Device" ){
-    					listIdIntervalSaveDevice.push({nameroom:listroom[countroom].nameRoom, id:scheduleHumi(listroom[countroom].nameRoom), idDevice:listDevice[i].id});
+    					listIdIntervalSaveDevice.push({nameroom:listroom[countroom].nameRoom, id:scheduleHumi(listroom[countroom].nameRoom, parseInt(10000)), ipDevice:listDevice[i].ip});
     				}
     			}
 		    }
@@ -383,25 +546,23 @@
     	}
     }
 
-    function scheduleTemp(counttag){
+    function scheduleTemp(counttag, time){
 		var scheduleTemp = setInterval(function(){
 			getTempatureHumidity();
 	    	setTemperatureOut(counttag);
-	    	setHumidityOut(counttag);
 	    	setTemperatureIn(counttag);
 	    	saveInfoToReport(counttag);
-	    }, 60000);
+	    }, time);
 	    return scheduleTemp;
     }
 
-    function scheduleHumi(counttag){
+    function scheduleHumi(counttag, time){
     	var scheduleHumi = setInterval(function(){
     		getTempatureHumidity();
-	    	setTemperatureOut(counttag);
 	    	setHumidityOut(counttag);
 	    	setHumidityIn(counttag);
 	    	saveInfoToReport(counttag);
-	    }, 60000);
+	    },time);
 	    return scheduleHumi;
     }
 
@@ -483,6 +644,9 @@
     	})
     }
 
+    function getRandomArbitrary(min, max) {
+	  return Math.floor(Math.random() * (max - min) + min)
+	}
     function getTempatureHumidity(){
 		
 		$.ajax({
@@ -495,7 +659,7 @@
 	}
 /////////////////////////////////////////////////////////////////////////////
 	function setTemperatureOut(tagset){
-		$(".tempertaureOut"+tagset).html(temperture_humidity[0].temperature);
+		$(".tempertaureOut"+tagset).html(parseInt(temperture_humidity[0].temperature));
 	}
 
 	function setHumidityOut(tagset){
@@ -504,7 +668,7 @@
 /////////////////////////////////////////////////////////////////////////////
 
 	function setTemperatureIn(tagset){
-		var tempIn = Math.floor(Math.random()*7) + parseInt(temperture_humidity[0].temperature);
+		var tempIn = getRandomArbitrary(-5,6) + parseInt(temperture_humidity[0].temperature);
 		$(".tempertaureIn"+tagset).html(tempIn);
 	}
 
@@ -513,7 +677,7 @@
 	}
 
 	function setHumidityIn(tagset){
-		var humiIn = Math.floor(Math.random()*7) + parseInt(temperture_humidity[1].humidity);
+		var humiIn = getRandomArbitrary(-5,6) + parseInt(temperture_humidity[1].humidity);
 		$(".humidityIn"+tagset).html(humiIn);
 	}
 
@@ -721,7 +885,7 @@
 						for(var i = 0; i<listIdIntervalSaveDevice.length; i++){
 							if(listIdIntervalSaveDevice[i].nameroom === nameRoom){
 								clearInterval(listIdIntervalSaveDevice[i].id);
-								listIdIntervalSaveDevice.splice(this,1);
+								listIdIntervalSaveDevice.splice(i,1);
 							}
 						}
 					}
@@ -738,10 +902,10 @@
 					if(deviceSource.length>0){
 		    			for(var i = 0; i<deviceSource.length; i++){
 		    				if(deviceSource[i].type === "Temperature Device"){
-		    					listIdIntervalSaveDevice.push({nameroom:nameRoom, id:scheduleTemp(nameRoom), idDevice:deviceSource[i].id});
+		    					listIdIntervalSaveDevice.push({nameroom:nameRoom, id:scheduleTemp(nameRoom, parseInt(10000)), ipDevice:deviceSource[i].ip});
 		    				}
 		    				if(deviceSource[i].type === "Humidity Device" ){
-		    					listIdIntervalSaveDevice.push({nameroom:nameRoom, id:scheduleHumi(nameRoom), idDevice:deviceSource[i].id});
+		    					listIdIntervalSaveDevice.push({nameroom:nameRoom, id:scheduleHumi(nameRoom,parseInt(10000)), ipDevice:deviceSource[i].ip});
 		    				}
 		    			}
 				    }
@@ -824,36 +988,36 @@
 	}
 
 
-	function setHumiAndTemp(){
-		$("#btn-up-humidityDevice, #btn-up-temperatureDevice").click(function(){
-			var typeDevice = $(this).attr("id");
-			if(typeDevice === "btn-up-humidityDevice"){
-				increaseOrDecreaseValue("setHumidity", 1);
-			}else{
-				increaseOrDecreaseValue("setTemperature", 1);
-			}
-		})
+	// function setHumiAndTemp(){
+	// 	$("#btn-up-humidityDevice, #btn-up-temperatureDevice").click(function(){
+	// 		var typeDevice = $(this).attr("id");
+	// 		if(typeDevice === "btn-up-humidityDevice"){
+	// 			increaseOrDecreaseValue("setHumidity", 1);
+	// 		}else{
+	// 			increaseOrDecreaseValue("setTemperature", 1);
+	// 		}
+	// 	})
 
-		$("#btn-down-humidityDevice, #btn-down-temperatureDevice").click(function(){
-			var typeDevice = $(this).attr("id");
-			if(typeDevice === "btn-down-humidityDevice"){
-				increaseOrDecreaseValue("setHumidity", 0);
-			}else{
-				increaseOrDecreaseValue("setTemperature", 0);
-			}
-		})
-	}
+	// 	$("#btn-down-humidityDevice, #btn-down-temperatureDevice").click(function(){
+	// 		var typeDevice = $(this).attr("id");
+	// 		if(typeDevice === "btn-down-humidityDevice"){
+	// 			increaseOrDecreaseValue("setHumidity", 0);
+	// 		}else{
+	// 			increaseOrDecreaseValue("setTemperature", 0);
+	// 		}
+	// 	})
+	// }
 
-	function increaseOrDecreaseValue(checkHumiOrTemp, checkupdown){
-		var value = $("."+checkHumiOrTemp).val();
-		if(checkupdown === 1){
-			value++;
-		}
-		else if (value >1){
-			value--;
-		}
-		$("."+checkHumiOrTemp).val(value);
-	}
+	// function increaseOrDecreaseValue(checkHumiOrTemp, checkupdown){
+	// 	var value = $("."+checkHumiOrTemp).val();
+	// 	if(checkupdown === 1){
+	// 		value++;
+	// 	}
+	// 	else if (value >1){
+	// 		value--;
+	// 	}
+	// 	$("."+checkHumiOrTemp).val(value);
+	// }
 	function showToastr(message, typetoastr){
 		toastr.options = {
               "closeButton": true,

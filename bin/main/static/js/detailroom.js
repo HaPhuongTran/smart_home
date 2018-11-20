@@ -58,13 +58,13 @@ function createTableDevice(datasource, listIdIntervalSaveDevice){
 
                             if(status_create === 200 && item.type === "Temperature Device"){
                                 $(".tempertaureIn"+nameRoom).html('');
-                                    clearIntervalDevice(listIdIntervalSaveDevice, nameRoom,item.id );
+                                    clearIntervalDevice(listIdIntervalSaveDevice, nameRoom,item.ip );
                             }
                             if(status_create === 200 && item.type === "Humidity Device"){
                                 $(".humidityIn"+nameRoom).html('');
-                                    clearIntervalDevice(listIdIntervalSaveDevice, nameRoom, item.id );
+                                    clearIntervalDevice(listIdIntervalSaveDevice, nameRoom, item.ip );
                             }
-                            return "Delete row with ID = " + item.id;  
+                            return "Delete row with IP = " + item.ip;  
                         }
                     }
                 }
@@ -79,10 +79,10 @@ function createTableDevice(datasource, listIdIntervalSaveDevice){
     });
 }
 
-function clearIntervalDevice(listIdIntervalSaveDevice, nameRoom, idItem){
+function clearIntervalDevice(listIdIntervalSaveDevice, nameRoom, ipItem){
     if(listIdIntervalSaveDevice != undefined && listIdIntervalSaveDevice.length>0){
         for(var i = 0; i<listIdIntervalSaveDevice.length; i++){
-            if(listIdIntervalSaveDevice[i].nameroom === nameRoom && listIdIntervalSaveDevice[i].idDevice === idItem){
+            if(listIdIntervalSaveDevice[i].nameroom === nameRoom && listIdIntervalSaveDevice[i].ipDevice === ipItem){
                 clearInterval(listIdIntervalSaveDevice[i].id);
                 listIdIntervalSaveDevice.splice(i,1);
             }
